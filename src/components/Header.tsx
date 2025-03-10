@@ -1,31 +1,34 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { IoSearchOutline, IoPersonOutline, IoCartOutline, IoMenuOutline, IoCloseOutline } from 'react-icons/io5'
+import { 
+  IoMenuOutline, 
+  IoCloseOutline, 
+  IoLogoWhatsapp,
+  IoWalletOutline 
+} from 'react-icons/io5'
 
 const Header = () => {
   const [isNavOpen, setIsNavOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 400) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   // Toggle navigation
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen)
+  }
+
+  // Handle smooth scroll
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    const element = document.querySelector(href)
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+      setIsNavOpen(false) // Close mobile nav after clicking
+    }
   }
 
   // Navigation links
@@ -33,116 +36,138 @@ const Header = () => {
     { href: '#home', label: 'Home' },
     { href: '#about', label: 'About' },
     { href: '#service', label: 'Service' },
-    { href: '#property', label: 'Property' },
-    { href: '#blog', label: 'Blog' },
-    { href: '#contact', label: 'Contact' },
+    { href: '#project', label: 'Project' },
   ]
 
   return (
-    <header className={`relative z-[2] transition-all duration-300 ${isScrolled ? 'pb-[114px]' : ''}`}>
-      {/* Overlay */}
+    <header className="bg-gray-900 text-white sticky top-0 z-50">
+      {/* Overlay for mobile menu */}
       <div 
-        className={`fixed inset-0 bg-black/70 transition-all duration-300 ${
+        className={`fixed inset-0 bg-gray-900/70 transition-all duration-300 ${
           isNavOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={toggleNav}
       />
 
-      {/* Header Content */}
-      <div className={`bg-black text-white py-6 ${
-        isScrolled ? 'fixed w-full top-0 shadow-lg animate-slideDown' : ''
-      }`}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex-shrink-0">
-              <Image 
-                src="/images/logo.jpg" 
-                alt="Logo" 
-                width={80} 
-                height={80} 
-                className="w-20 h-20 object-contain"
-                priority
-              />
-            </Link>
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <Image 
+              src="/images/logo.jpg" 
+              alt="Logo" 
+              width={80} 
+              height={80} 
+              className="w-20 h-20 object-contain"
+              priority
+            />
+          </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:block">
-              <ul className="flex items-center gap-8">
-                {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link 
-                      href={link.href}
-                      className="text-white hover:text-orange-500 font-semibold text-lg transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-8">
+            <ul className="flex items-center gap-8">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <a 
+                    href={link.href}
+                    onClick={(e) => handleClick(e, link.href)}
+                    className="text-white hover:text-green-400 font-semibold text-lg transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
 
-            {/* Mobile Navigation */}
-            <nav className={`lg:hidden fixed top-0 w-[300px] h-full bg-white shadow-lg z-50 transition-all duration-300 ease-in-out ${
-              isNavOpen ? 'right-0' : '-right-[310px]'
-            }`}>
-              <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                <Link href="/" className="flex-shrink-0">
-                  <Image 
-                    src="/images/logo.jpg" 
-                    alt="Logo" 
-                    width={60} 
-                    height={60} 
-                    className="w-15 h-15 object-contain"
-                  />
-                </Link>
-                <button 
-                  onClick={toggleNav}
-                  className="text-gray-600 hover:text-orange-500 transition-colors"
-                  aria-label="Close Menu"
-                >
-                  <IoCloseOutline size={24} />
-                </button>
-              </div>
-
-              <ul className="p-6 space-y-4">
-                {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link 
-                      href={link.href}
-                      className="text-gray-600 hover:text-orange-500 font-semibold text-base block py-2 transition-colors"
-                      onClick={toggleNav}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
-              <button className="w-12 h-12 bg-white text-gray-700 rounded-full shadow-md flex items-center justify-center hover:text-orange-500 transition-colors" aria-label="Search">
-                <IoSearchOutline size={20} />
-              </button>
-
-              <button className="w-12 h-12 bg-white text-gray-700 rounded-full shadow-md flex items-center justify-center hover:text-orange-500 transition-colors" aria-label="Profile">
-                <IoPersonOutline size={20} />
-              </button>
-
-              <button className="w-12 h-12 bg-white text-gray-700 rounded-full shadow-md flex items-center justify-center hover:text-orange-500 transition-colors" aria-label="Cart">
-                <IoCartOutline size={20} />
-              </button>
-
-              <button 
-                className="lg:hidden w-12 h-12 bg-white text-gray-700 rounded-full shadow-md flex items-center justify-center hover:text-orange-500 transition-colors"
-                onClick={toggleNav}
-                aria-label="Open Menu"
+            {/* Action Buttons - Right Aligned */}
+            <div className="flex items-center gap-3">
+              <a 
+                href="https://wa.me/+6221292229999" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 text-sm"
               >
-                <IoMenuOutline size={20} />
+                <IoLogoWhatsapp size={16} />
+                <span>Contact Us</span>
+              </a>
+
+              <a 
+                href="#payment" 
+                className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 text-sm"
+              >
+                <IoWalletOutline size={16} />
+                <span>Payment</span>
+              </a>
+            </div>
+          </nav>
+
+          {/* Mobile Navigation */}
+          <nav className={`lg:hidden fixed top-0 w-[300px] h-full bg-gray-900 shadow-lg z-50 transition-all duration-300 ease-in-out ${
+            isNavOpen ? 'right-0' : '-right-[310px]'
+          }`}>
+            <div className="flex justify-between items-center p-6 border-b border-gray-700">
+              <Link href="/" className="flex-shrink-0">
+                <Image 
+                  src="/images/logo.jpg" 
+                  alt="Logo" 
+                  width={60} 
+                  height={60} 
+                  className="w-15 h-15 object-contain"
+                />
+              </Link>
+              <button 
+                onClick={toggleNav}
+                className="text-white hover:text-green-400 transition-colors"
+                aria-label="Close Menu"
+              >
+                <IoCloseOutline size={24} />
               </button>
             </div>
-          </div>
+
+            <ul className="p-6 space-y-4">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <a 
+                    href={link.href}
+                    onClick={(e) => handleClick(e, link.href)}
+                    className="text-gray-300 hover:text-green-400 font-semibold text-base block py-2 transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+              
+              {/* Mobile Action Buttons */}
+              <li className="pt-4 space-y-3">
+                <a 
+                  href="https://wa.me/+6221292229999" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 justify-center w-full text-sm"
+                >
+                  <IoLogoWhatsapp size={16} />
+                  <span>Contact Us</span>
+                </a>
+
+                <a 
+                  href="#payment" 
+                  className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 justify-center w-full text-sm"
+                >
+                  <IoWalletOutline size={16} />
+                  <span>Payment</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Mobile Menu Button - also smaller */}
+          <button 
+            className="lg:hidden w-10 h-10 bg-green-500 text-white rounded-full shadow-md flex items-center justify-center hover:bg-green-600 transition-colors"
+            onClick={toggleNav}
+            aria-label="Open Menu"
+          >
+            <IoMenuOutline size={18} />
+          </button>
         </div>
       </div>
     </header>
