@@ -7,8 +7,6 @@ import {
   IoWineOutline, 
   IoShieldCheckmarkOutline, 
   IoArrowForwardOutline, 
-  IoCalendarOutline,
-  IoSquareOutline,
   IoBrushOutline,
   IoConstructOutline,
   IoBusinessOutline,

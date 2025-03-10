@@ -82,7 +82,7 @@ const Header = () => {
             {/* Action Buttons - Right Aligned */}
             <div className="flex items-center gap-3">
               <a 
-                href="https://wa.me/+6221292229999" 
+                href="https://wa.me/+622129222999" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 text-sm"
