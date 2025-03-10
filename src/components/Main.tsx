@@ -103,7 +103,7 @@ const Main = () => {
                 </h2>
 
                 <p className="text-gray-600 mb-8">
-                  We believe that while price can buy luxury, it cannot buy taste. With us, you get both. Our commitment to excellence in architectural design and construction ensures that every project perfectly matches our client's lifestyle and luxury aspirations.
+                  We believe that while price can buy luxury, it cannot buy taste. With us, you get both. Our commitment to excellence in architectural design and construction ensures that every project perfectly matches our client&apos;s lifestyle and luxury aspirations.
                 </p>
 
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -137,7 +137,7 @@ const Main = () => {
                 </ul>
 
                 <blockquote className="border-l-4 border-green-600 pl-4 py-2 mb-8 text-gray-600 italic">
-                  "Enimad minim veniam quis nostrud exercitation llamco laboris. Lorem ipsum dolor sit amet"
+                  &ldquo;Enimad minim veniam quis nostrud exercitation llamco laboris. Lorem ipsum dolor sit amet&rdquo;
                 </blockquote>
 
                 <Link href="#service" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition-colors duration-300 font-medium">
