@@ -1,3 +1,6 @@
+'use client'
+
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { 
@@ -10,7 +13,12 @@ import {
   IoBrushOutline,
   IoConstructOutline,
   IoBusinessOutline,
-  IoHammerOutline
+  IoHammerOutline,
+  IoBedOutline,
+  IoManOutline,
+  IoSquareOutline,
+  IoHeartOutline,
+  IoCheckmarkCircleOutline
 } from 'react-icons/io5'
 
 const Main = () => {
@@ -144,6 +152,74 @@ const Main = () => {
                   <span>Our Services</span>
                   <IoArrowForwardOutline size={18} />
                 </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Vision Mission Section */}
+        <section className="py-16 md:py-24 bg-gray-50" id="vision-mission">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <p className="text-orange-600 font-semibold mb-3">
+                Our Vision & Mission
+              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                We Are Committed to Excellence
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Our dedication to quality architectural design and outstanding customer service guides every project we undertake.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12">
+              {/* Vision */}
+              <div className="bg-white p-8 md:p-10 rounded-lg shadow-md">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6 mx-auto md:mx-0">
+                  <IoHomeOutline className="text-orange-600 text-2xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center md:text-left">Vision</h3>
+                <p className="text-gray-700 text-lg mb-6 text-center md:text-left">
+                  "To be the best in architectural design that matches clients' lifestyles and luxury."
+                </p>
+              </div>
+
+              {/* Mission */}
+              <div className="bg-white p-8 md:p-10 rounded-lg shadow-md">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6 mx-auto md:mx-0">
+                  <IoCheckmarkCircleOutline className="text-orange-600 text-2xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center md:text-left">Mission</h3>
+                <ul className="space-y-3 text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-600 flex-shrink-0 mt-1">•</span>
+                    <span>Provide satisfaction to every client</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-600 flex-shrink-0 mt-1">•</span>
+                    <span>Implement good corporate governance</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-600 flex-shrink-0 mt-1">•</span>
+                    <span>Provide value-added services and solutions in the field of architectural services</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-600 flex-shrink-0 mt-1">•</span>
+                    <span>Deliver comfort, certainty, quality, and innovation in architectural services</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-600 flex-shrink-0 mt-1">•</span>
+                    <span>Create the best conditions as a place of pride to work and achieve</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-600 flex-shrink-0 mt-1">•</span>
+                    <span>Enhance awareness and responsibility towards the environment and society</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-600 flex-shrink-0 mt-1">•</span>
+                    <span>Continuously improve the quality of human resources, products, and services</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>

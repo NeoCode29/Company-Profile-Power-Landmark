@@ -140,7 +140,7 @@ const Header = () => {
               {/* Mobile Action Buttons */}
               <li className="pt-4 space-y-3">
                 <a 
-                  href="https://wa.me/+6221292229999" 
+                  href="https://wa.me/+622129222999" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 justify-center w-full text-sm"
@@ -149,13 +149,13 @@ const Header = () => {
                   <span>Contact Us</span>
                 </a>
 
-                <a 
-                  href="#payment" 
+                <Link 
+                  href="/payments" 
                   className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 justify-center w-full text-sm"
                 >
                   <IoWalletOutline size={16} />
                   <span>Payment</span>
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
