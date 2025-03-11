@@ -54,7 +54,7 @@ const Header = () => {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image 
-              src="/images/logo.jpg" 
+              src="/images/logo.png" 
               alt="Logo" 
               width={80} 
               height={80} 
@@ -92,7 +92,7 @@ const Header = () => {
               </a>
 
               <a 
-                href="#payment" 
+                href="/payments" 
                 className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 text-sm"
               >
                 <IoWalletOutline size={16} />
@@ -108,7 +108,7 @@ const Header = () => {
             <div className="flex justify-between items-center p-6 border-b border-gray-700">
               <Link href="/" className="flex-shrink-0">
                 <Image 
-                  src="/images/logo.jpg" 
+                  src="/images/logo.png" 
                   alt="Logo" 
                   width={60} 
                   height={60} 

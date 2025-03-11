@@ -14,13 +14,13 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-8">
           {/* Company Info */}
           <div>
-            <Link href="/" className="inline-block mb-6">
+            <Link href="/" className="inline-block mb-2">
               <Image 
-                src="/images/logo.jpg" 
+                src="/images/logo.png" 
                 alt="Power Landmark" 
-                width={60} 
-                height={60}
-                className="h-12 w-auto"
+                width={120} 
+                height={120}
+                className="w-auto"
               />
             </Link>
 

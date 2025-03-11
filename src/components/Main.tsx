@@ -137,7 +137,7 @@ const Main = () => {
                 </ul>
 
                 <blockquote className="border-l-4 border-green-600 pl-4 py-2 mb-8 text-gray-600 italic">
-                  &ldquo;Enimad minim veniam quis nostrud exercitation llamco laboris. Lorem ipsum dolor sit amet&rdquo;
+                  &ldquo;Your home should tell the story of who you are, and be a collection of what you love.&rdquo; - Nate Berkus
                 </blockquote>
 
                 <Link href="#service" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition-colors duration-300 font-medium">
