@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import { handleCodeSubmission } from '../../libs/actions'
 
 export const metadata = {
@@ -32,12 +33,12 @@ async function Page({searchParams} : {searchParams : Promise<{[key : string] : s
           )}
           </div>
           <div className="flex items-center justify-between">
-            <a
+            <Link
               href="/"
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
             >
               Kembali
-            </a>
+            </Link>
             <button
               className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline"
               type="submit"
