@@ -14,10 +14,6 @@ import {
   IoConstructOutline,
   IoBusinessOutline,
   IoHammerOutline,
-  IoBedOutline,
-  IoManOutline,
-  IoSquareOutline,
-  IoHeartOutline,
   IoCheckmarkCircleOutline
 } from 'react-icons/io5'
 
@@ -180,7 +176,7 @@ const Main = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center md:text-left">Vision</h3>
                 <p className="text-gray-700 text-lg mb-6 text-center md:text-left">
-                  "To be the best in architectural design that matches clients' lifestyles and luxury."
+                  &ldquo;To be the best in architectural design that matches clients&lsquo; lifestyles and luxury.&ldquo;
                 </p>
               </div>
 
