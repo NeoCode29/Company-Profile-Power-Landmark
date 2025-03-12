@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
@@ -90,7 +91,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
   return (
     <div 
-      className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-lg"
+      className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-lg shadow-lg"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

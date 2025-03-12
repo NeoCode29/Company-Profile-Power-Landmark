@@ -5,7 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { 
   IoHomeOutline, 
-  IoLocationOutline, 
   IoLeafOutline, 
   IoWineOutline, 
   IoShieldCheckmarkOutline, 
@@ -14,9 +13,9 @@ import {
   IoConstructOutline,
   IoBusinessOutline,
   IoHammerOutline,
-  IoCheckmarkCircleOutline
 } from 'react-icons/io5'
 import Carousel from './Carousel'
+import HorizontalImageGallery from './HorizontalImageGallery'
 
 const Main = () => {
   return (
@@ -129,10 +128,6 @@ const Main = () => {
                   </li>
                 </ul>
 
-                <blockquote className="border-l-4 border-green-600 pl-4 py-2 mb-8 text-gray-600 italic">
-                  &ldquo;Your home should tell the story of who you are, and be a collection of what you love.&rdquo; - Nate Berkus
-                </blockquote>
-
                 <Link href="#service" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition-colors duration-300 font-medium">
                   <span>Our Services</span>
                   <IoArrowForwardOutline size={18} />
@@ -142,81 +137,10 @@ const Main = () => {
           </div>
         </section>
 
-        {/* Vision Mission Section */}
-        <section className="py-16 md:py-24 bg-gray-50" id="vision-mission">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center mb-12">
-              <p className="text-orange-600 font-semibold mb-3">
-                Our Vision & Mission
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                We Are Committed to Excellence
-              </h2>
-              <p className="text-gray-600 text-lg">
-                Our dedication to quality architectural design and outstanding customer service guides every project we undertake.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-12">
-              {/* Vision */}
-              <div className="bg-white p-8 md:p-10 rounded-lg shadow-md">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6 mx-auto md:mx-0">
-                  <IoHomeOutline className="text-green-600 text-2xl" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center md:text-left">Vision</h3>
-                <p className="text-gray-700 text-lg mb-6 text-center md:text-left">
-                  &ldquo;To be the best in architectural design that matches clients&lsquo; lifestyles and luxury.&ldquo;
-                </p>
-              </div>
-
-              {/* Mission */}
-              <div className="bg-white p-8 md:p-10 rounded-lg shadow-md">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6 mx-auto md:mx-0">
-                  <IoCheckmarkCircleOutline className="text-green-600 text-2xl" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center md:text-left">Mission</h3>
-                <ul className="space-y-3 text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0 mt-1">•</span>
-                    <span>Provide satisfaction to every client</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0 mt-1">•</span>
-                    <span>Implement good corporate governance</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0 mt-1">•</span>
-                    <span>Provide value-added services and solutions in the field of architectural services</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0 mt-1">•</span>
-                    <span>Deliver comfort, certainty, quality, and innovation in architectural services</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0 mt-1">•</span>
-                    <span>Create the best conditions as a place of pride to work and achieve</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0 mt-1">•</span>
-                    <span>Enhance awareness and responsibility towards the environment and society</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0 mt-1">•</span>
-                    <span>Continuously improve the quality of human resources, products, and services</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Service Section */}
         <section className="py-16 md:py-24 bg-green-50" id="service">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <p className="text-green-600 font-semibold mb-3">
-                Our Services
-              </p>
 
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                 Our Main Focus
@@ -307,59 +231,13 @@ const Main = () => {
         <section className="py-16 md:py-24 bg-white" id="project">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <p className="text-green-600 font-semibold mb-3">
-                Our Projects
-              </p>
 
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                 Featured Projects
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Project Cards */}
-              {[
-                {
-                  image: "/images/property-1.jpg",
-                  location: "Jakarta Selatan",
-                  title: "Modern Luxury Villa Project"
-                },
-                {
-                  image: "/images/property-2.jpg",
-                  location: "Bandung",
-                  title: "Exclusive Private Residence"
-                },
-                {
-                  image: "/images/property-3.jpg",
-                  location: "Surabaya",
-                  title: "Modern Villa Development"
-                }
-              ].map((project, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden group">
-                <div className="relative">
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                    width={500}
-                    height={300}
-                      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2 text-white">
-                          <IoLocationOutline size={20} />
-                          <span className="text-sm font-medium">{project.location}</span>
-                        </div>
-                        <h3 className="text-xl font-bold text-white">
-                          {project.title}
-                        </h3>
-                      </div>
-                    </div>
-                </div>
-                </div>
-              ))}
-            </div>
+            <HorizontalImageGallery />
           </div>
         </section>
 

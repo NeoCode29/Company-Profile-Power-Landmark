@@ -18,24 +18,11 @@ const Header = () => {
     setIsNavOpen(!isNavOpen)
   }
 
-  // Handle smooth scroll
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault()
-    const element = document.querySelector(href)
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      })
-      setIsNavOpen(false) // Close mobile nav after clicking
-    }
-  }
-
   // Navigation links
   const navLinks = [
-    { href: '#home', label: 'Home' },
-    { href: '#about', label: 'About' },
-    { href: '#service', label: 'Service' }
+    { href: '/', label: 'Home' },
+    { href: '/about', label: 'About' },
+    { href: '/service', label: 'Service' }
   ]
 
   return (
@@ -69,7 +56,6 @@ const Header = () => {
                 <li key={link.href}>
                   <a 
                     href={link.href}
-                    onClick={(e) => handleClick(e, link.href)}
                     className="text-gray-900 hover:text-green-400 font-semibold text-lg transition-colors"
                   >
                     {link.label}
@@ -129,7 +115,6 @@ const Header = () => {
                 <li key={link.href}>
                   <a 
                     href={link.href}
-                    onClick={(e) => handleClick(e, link.href)}
                     className="text-gray-300 hover:text-green-400 font-semibold text-base block py-2 transition-colors"
                   >
                     {link.label}
