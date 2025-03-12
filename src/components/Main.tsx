@@ -16,6 +16,7 @@ import {
   IoHammerOutline,
   IoCheckmarkCircleOutline
 } from 'react-icons/io5'
+import Carousel from './Carousel'
 
 const Main = () => {
   return (
@@ -69,27 +70,26 @@ const Main = () => {
         <section className="py-16 md:py-24 bg-white" id="about">
           <div className="container mx-auto px-4">
             <div className="lg:grid lg:grid-cols-2 lg:gap-12">
-              <figure className="relative mb-12 lg:mb-0">
-                <div className="relative">
-                  <Image
-                    src="/images/about-banner-tamplate.png"
-                    alt="House interior"
-                    width={900}
-                    height={800}
-                    className="h-auto rounded-lg"
-                  />
+              {/* Carousel Column */}
+              <div className="mb-12 lg:mb-0 ">
+                <Carousel
+                  imageUrls={[
+                    '/images/about1.jpg',
+                    '/images/about2.jpg',
+                    '/images/about3.jpg',
+                    '/images/about4.jpg',
+                    '/images/about5.jpg'
+                  ]}
+                  aspectRatio="4:3"
+                  interval={5000}
+                  showArrows={true}
+                  showDots={true}
+                  autoPlay={true}
+                />
+              </div>
 
-                  <Image
-                    src="/images/about-1.jpg"
-                    alt='House image'
-                    width={400}
-                    height={600}
-                    className='absolute top-0 left-40 '
-                  />
-                </div>
-              </figure>
-
-              <div className="lg:pl-8 lg:pt-12">
+              {/* Content Column */}
+              <div className="lg:pl-8">
 
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                   Luxury is Attainable, True Elegance is Purposeful
