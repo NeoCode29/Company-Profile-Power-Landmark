@@ -9,14 +9,14 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-16">
+    <footer className="bg-white text-gray-900 py-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-8">
           {/* Company Info */}
           <div>
             <Link href="/" className="inline-block mb-2">
               <Image 
-                src="/images/logo.png" 
+                src="/images/logo.jpg" 
                 alt="Power Landmark" 
                 width={120} 
                 height={120}
@@ -24,18 +24,18 @@ const Footer = () => {
               />
             </Link>
 
-            <p className="text-gray-400 mb-8 leading-relaxed max-w-lg">
+            <p className="text-gray-600 mb-8 leading-relaxed max-w-lg">
               We understand that home, where we spend the most time, is the most comfortable zone for whole family. We are here to fulfill the need for comfortable, elegant and luxurious homes.
             </p>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-xl font-semibold mb-6">Contact Us</h3>
+            <h3 className="text-xl font-semibold mb-6 text-gray-900">Contact Us</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <IoLocationOutline className="text-green-400 text-xl flex-shrink-0 mt-1" />
-                <address className="text-gray-400 not-italic">
+                <address className="text-gray-600 not-italic">
                   Prominence Office Tower Lt 28 Suite C<br/>
                   Jl. Sutera Barat No 15, Alam Sutera<br/>
                   Tanggerang, Indonesia
@@ -44,7 +44,7 @@ const Footer = () => {
 
               <div className="flex items-center gap-3">
                 <IoCallOutline className="text-green-400 text-xl flex-shrink-0" />
-                <a href="tel:+62-21-29222999" className="text-gray-400 hover:text-green-400 transition-colors">
+                <a href="tel:+62-21-29222999" className="text-gray-600 hover:text-green-400 transition-colors">
                   +62-21-29222999
                 </a>
               </div>
@@ -55,7 +55,7 @@ const Footer = () => {
                   href="https://www.cvpowerlandmark.com" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="text-gray-400 hover:text-green-400 transition-colors"
+                  className="text-gray-600 hover:text-green-400 transition-colors"
                 >
                   www.cvpowerlandmark.com
                 </a>
@@ -65,7 +65,7 @@ const Footer = () => {
                 <IoMailOutline className="text-green-400 text-xl flex-shrink-0" />
                 <a 
                   href="mailto:cvpowerlandmark@gmail.com" 
-                  className="text-gray-400 hover:text-green-400 transition-colors"
+                  className="text-gray-600 hover:text-green-400 transition-colors"
                 >
                   cvpowerlandmark@gmail.com
                 </a>
@@ -75,9 +75,9 @@ const Footer = () => {
         </div>
 
         {/* Footer Bottom */}
-        <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+        <div className="border-t border-gray-200 pt-8 text-center text-gray-600">
           <p>
-            &copy; {new Date().getFullYear()} <Link href="/" className="text-white hover:text-green-400 transition-colors">Power Landmark</Link>. All rights reserved.
+            &copy; {new Date().getFullYear()} <Link href="/" className="text-gray-900 hover:text-green-400 transition-colors">Power Landmark</Link>. All rights reserved.
           </p>
         </div>
       </div>

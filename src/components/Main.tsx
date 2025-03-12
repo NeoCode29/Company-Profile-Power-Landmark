@@ -27,12 +27,6 @@ const Main = () => {
             <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
               {/* Left Column - Content */}
               <div className="mb-12 lg:mb-0">
-                <div className="inline-flex items-center gap-2 bg-green-100 text-green-600 px-4 py-2 rounded-full mb-5">
-                  <IoHomeOutline size={18}/>
-                  <span className="text-sm font-medium">
-                    Where Luxury Meets Lifestyle
-                  </span>
-                </div>
 
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
                   Creating Elegant Spaces That Define Your Lifestyle
@@ -78,32 +72,27 @@ const Main = () => {
               <figure className="relative mb-12 lg:mb-0">
                 <div className="relative">
                   <Image
-                    src="/images/about-banner-1.png"
+                    src="/images/about-banner-tamplate.png"
                     alt="House interior"
-                    width={500}
-                    height={400}
-                    className="w-full h-auto rounded-lg"
+                    width={900}
+                    height={800}
+                    className="h-auto rounded-lg"
                   />
-                  
-                  <div className="absolute -bottom-16 -right-8 hidden md:block">
-                    <Image
-                      src="/images/about-banner-2.jpg"
-                      alt="House interior"
-                      width={300}
-                      height={200}
-                      className="w-64 h-auto rounded-lg shadow-xl"
-                    />
-                  </div>
+
+                  <Image
+                    src="/images/about-1.jpg"
+                    alt='House image'
+                    width={400}
+                    height={600}
+                    className='absolute top-0 left-40 '
+                  />
                 </div>
               </figure>
 
-              <div className="lg:pl-8">
-                <p className="text-green-600 font-semibold mb-4">
-                  About Us
-                </p>
+              <div className="lg:pl-8 lg:pt-12">
 
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                  The Leading Real Estate Rental Marketplace
+                  Luxury is Attainable, True Elegance is Purposeful
                 </h2>
 
                 <p className="text-gray-600 mb-8">
@@ -361,13 +350,13 @@ const Main = () => {
                         <div className="flex items-center gap-2 text-white">
                           <IoLocationOutline size={20} />
                           <span className="text-sm font-medium">{project.location}</span>
-                    </div>
+                        </div>
                         <h3 className="text-xl font-bold text-white">
                           {project.title}
                         </h3>
                       </div>
                     </div>
-                  </div>
+                </div>
                 </div>
               ))}
             </div>

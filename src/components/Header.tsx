@@ -35,13 +35,11 @@ const Header = () => {
   const navLinks = [
     { href: '#home', label: 'Home' },
     { href: '#about', label: 'About' },
-    { href: '#vision-mission', label: 'Vision & Mission' },
-    { href: '#service', label: 'Service' },
-    { href: '#project', label: 'Project' },
+    { href: '#service', label: 'Service' }
   ]
 
   return (
-    <header className="bg-gray-900 text-white sticky top-0 z-50">
+    <header className="bg-white text-gray-900 sticky top-0 z-50 border-b-gray-300">
       {/* Overlay for mobile menu */}
       <div 
         className={`fixed inset-0 bg-gray-900/70 transition-all duration-300 ${
@@ -51,11 +49,11 @@ const Header = () => {
       />
 
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between w-full">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image 
-              src="/images/logo.png" 
+              src="/images/logo.jpg" 
               alt="Logo" 
               width={80} 
               height={80} 
@@ -65,23 +63,25 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            <ul className="flex items-center gap-8">
+          <nav className="hidden lg:flex items-center justify-center gap-8">
+            <ul className="flex items-center gap-16">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <a 
                     href={link.href}
                     onClick={(e) => handleClick(e, link.href)}
-                    className="text-white hover:text-green-400 font-semibold text-lg transition-colors"
+                    className="text-gray-900 hover:text-green-400 font-semibold text-lg transition-colors"
                   >
                     {link.label}
                   </a>
                 </li>
               ))}
             </ul>
+          </nav>
 
-            {/* Action Buttons - Right Aligned */}
-            <div className="flex items-center gap-3">
+
+          {/* Action Buttons - Right Aligned */}
+          <div className="hidden lg:flex items-center gap-3">
               <a 
                 href="https://wa.me/+622129222999" 
                 target="_blank" 
@@ -94,13 +94,12 @@ const Header = () => {
 
               <a 
                 href="/payments" 
-                className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 text-sm"
+                className="bg-gray-200 text-gray-900 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors duration-300 flex items-center gap-2 text-sm"
               >
                 <IoWalletOutline size={16} />
                 <span>Payment</span>
               </a>
             </div>
-          </nav>
 
           {/* Mobile Navigation */}
           <nav className={`lg:hidden fixed top-0 w-[300px] h-full bg-gray-900 shadow-lg z-50 transition-all duration-300 ease-in-out ${
