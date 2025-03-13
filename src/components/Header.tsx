@@ -79,7 +79,7 @@ const Header = () => {
               </a>
 
               <a 
-                href="/payments" 
+                href="/payment" 
                 className="bg-gray-200 text-gray-900 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors duration-300 flex items-center gap-2 text-sm"
               >
                 <IoWalletOutline size={16} />
@@ -135,7 +135,7 @@ const Header = () => {
                 </a>
 
                 <Link 
-                  href="/payments" 
+                  href="/payment" 
                   className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 justify-center w-full text-sm"
                 >
                   <IoWalletOutline size={16} />
