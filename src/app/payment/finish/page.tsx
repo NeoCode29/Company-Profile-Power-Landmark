@@ -1,10 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { IoCheckmarkCircleOutline, IoCloseCircleOutline } from 'react-icons/io5'
 
-const TransactionStatusPage: React.FC = () => {
+const TransactionStatusView: React.FC = () => {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('order_id')
   const statusCode = searchParams.get('status_code')
@@ -50,7 +50,17 @@ const TransactionStatusPage: React.FC = () => {
         </button>
       </div>
     </div>
+    
   )
 }
 
-export default TransactionStatusPage
+function PaymentFinishPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <TransactionStatusView />
+    </Suspense>
+  )
+}
+
+
+export default PaymentFinishPage

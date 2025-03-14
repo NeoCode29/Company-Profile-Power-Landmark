@@ -95,20 +95,9 @@ const ContactForm: React.FC = () => {
       <button
         type="submit"
         className="w-full py-3 px-4 bg-gradient-to-r bg-green-500 text-white font-bold rounded shadow-md hover:opacity-90 transition-opacity"
-        disabled={status === 'loading'}
       >
-        {status === 'loading' ? 'Sending...' : 'Send Message'}
+        Send Message
       </button>
-      {status === 'success' && (
-        <p className="mt-4 text-green-500 font-medium text-center">
-          Message sent successfully!
-        </p>
-      )}
-      {status === 'error' && (
-        <p className="mt-4 text-red-500 font-medium text-center">
-          Something went wrong. Please try again.
-        </p>
-      )}
     </form>
   )
 }
