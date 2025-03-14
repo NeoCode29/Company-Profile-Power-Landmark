@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import midtransClient from 'midtrans-client';
 const snap = new midtransClient.Snap({
-    isProduction : true,
+    isProduction : process.env.NODE_ENV === "production",
     serverKey : process.env.MIDTRANS_SERVER_KEY
 });
 

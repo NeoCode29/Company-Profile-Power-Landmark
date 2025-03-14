@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-interface CarouselProps {
+export interface CarouselProps {
   imageUrls: string[];
   autoPlay?: boolean;
   interval?: number;

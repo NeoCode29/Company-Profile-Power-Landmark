@@ -23,7 +23,7 @@ const Main = () => {
       <article>
         {/* Hero Section */}
         <section className="bg-gray-100 py-24 md:py-24" id="home">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 pt-24">
             <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
               {/* Left Column - Content */}
               <div className="mb-12 lg:mb-0">
@@ -42,7 +42,7 @@ const Main = () => {
                     <IoArrowForwardOutline className="ml-2" size={18} />
                   </a>
                   
-                  <a href="#contact" className="border border-green-200 bg-white text-gray-700 px-6 py-3 rounded-md hover:bg-green-50 transition-colors duration-300 font-medium flex items-center justify-center">
+                  <a href="https://wa.me/+622129222999" className="border border-green-200 bg-white text-gray-700 px-6 py-3 rounded-md hover:bg-green-50 transition-colors duration-300 font-medium flex items-center justify-center">
                     <span>Get a Free Consultation</span>
                   </a>
                 </div>
@@ -70,7 +70,7 @@ const Main = () => {
           <div className="container mx-auto px-4">
             <div className="lg:grid lg:grid-cols-2 lg:gap-12">
               {/* Carousel Column */}
-              <div className="mb-12 lg:mb-0 ">
+              <div className="mb-12 lg:mb-0 w-80 justify-self-center">
                 <Carousel
                   imageUrls={[
                     '/images/about1.jpg',
@@ -79,16 +79,17 @@ const Main = () => {
                     '/images/about4.jpg',
                     '/images/about5.jpg'
                   ]}
-                  aspectRatio="4:3"
+                  aspectRatio="custom"
                   interval={5000}
-                  showArrows={true}
+                  showArrows={false}
                   showDots={true}
                   autoPlay={true}
+                  customAspectRatio='2:3'
                 />
               </div>
 
               {/* Content Column */}
-              <div className="lg:pl-8">
+              <div className=" justify-self-start self-center" >
 
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                   Luxury is Attainable, True Elegance is Purposeful
@@ -157,7 +158,7 @@ const Main = () => {
                 </div>
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  <Link href="#" className="hover:text-green-600 transition-colors">
+                  <Link href="/service" className="hover:text-green-600 transition-colors">
                     Architecture Design
                   </Link>
                 </h3>
@@ -176,7 +177,7 @@ const Main = () => {
                 </div>
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  <Link href="#" className="hover:text-green-600 transition-colors">
+                  <Link href="/service" className="hover:text-green-600 transition-colors">
                     Private Home Construction
                   </Link>
                 </h3>
@@ -195,7 +196,7 @@ const Main = () => {
                 </div>
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  <Link href="#" className="hover:text-green-600 transition-colors">
+                  <Link href="/service" className="hover:text-green-600 transition-colors">
                     Private Villa Development
                   </Link>
                 </h3>
@@ -214,7 +215,7 @@ const Main = () => {
                 </div>
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  <Link href="#" className="hover:text-green-600 transition-colors">
+                  <Link href="/service" className="hover:text-green-600 transition-colors">
                     Renovation Services
                   </Link>
                 </h3>
@@ -255,7 +256,7 @@ const Main = () => {
               </div>
 
               <a 
-                href="#contact" 
+                href="https://wa.me/+622129222999" 
                 className="bg-white text-gray-900 px-8 py-3 rounded font-semibold flex items-center gap-2 hover:bg-gray-900 hover:text-white transition-colors duration-300"
               >
                 <span>Contact Us</span>

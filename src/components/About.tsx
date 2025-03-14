@@ -1,5 +1,6 @@
 import React from 'react';
 import Carousel from './Carousel';
+import Image from 'next/image';
 import { 
   IoHomeOutline, 
   IoLocationOutline,
@@ -14,36 +15,9 @@ const About: React.FC = () => {
     <>
       <main>
         <article>
-          {/* Hero Section with Carousel */}
-          <section className="bg-gray-100 py-16">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <p className="text-green-600 font-semibold mb-3">About Us</p>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-                  Creating Elegant Spaces That Define Your Lifestyle
-                </h1>
-              </div>
-              <div className="max-w-5xl mx-auto">
-                <Carousel
-                  imageUrls={[
-                    '/images/about1.jpg',
-                    '/images/about2.jpg',
-                    '/images/about3.jpg',
-                    '/images/about4.jpg',
-                    '/images/about5.jpg',
-                  ]}
-                  aspectRatio="16:9"
-                  interval={5000}
-                  showArrows={true}
-                  showDots={true}
-                  autoPlay={true}
-                />
-              </div>
-            </div>
-          </section>
 
           {/* Company Information */}
-          <section className="py-16 bg-white">
+          <section className="py-16 bg-white pt-48">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">About Company</h2>
@@ -58,7 +32,6 @@ const About: React.FC = () => {
           <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <p className="text-green-600 font-semibold mb-3">Our Purpose</p>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Vision & Mission</h2>
               </div>
               <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
@@ -101,10 +74,17 @@ const About: React.FC = () => {
           <section className="py-16 bg-gray-50">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
-                <p className="text-green-600 font-semibold mb-3">Get in Touch</p>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Contact Us</h2>
               </div>
-              <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+              <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8 flex flex-col md:flex-row gap-12 justify-center items-center">
+                <Image 
+                  src="/images/logo.jpg" 
+                  alt="Power Landmark" 
+                  width={240} 
+                  height={240}
+                  className=" w-60 overflow-hidden "
+                />
+
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">

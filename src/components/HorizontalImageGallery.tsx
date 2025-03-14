@@ -1,32 +1,65 @@
-import React, { useRef } from 'react';
-import Image from 'next/image';
+'use client'
 
-const HorizontalImageGallery = () => {
-  const projectImages = [
+import React, { useRef, useState } from 'react'
+import Image from 'next/image'
+
+interface ProjectImage {
+  id: number
+  imageUrl: string
+  title: string
+}
+
+const HorizontalImageGallery: React.FC = () => {
+  const projectImages: ProjectImage[] = [
     { id: 1, imageUrl: '/images/project1.jpg', title: 'Modern Luxury Villa Project' },
     { id: 2, imageUrl: '/images/project2.jpg', title: 'Exclusive Private Residence' },
     { id: 3, imageUrl: '/images/project3.jpg', title: 'Modern Villa Development' },
     { id: 4, imageUrl: '/images/project4.jpg', title: 'Urban Apartment Design' },
     { id: 5, imageUrl: '/images/project5.jpg', title: 'Eco-Friendly Home' },
-  ];
+  ]
 
-  const galleryRef = useRef<HTMLDivElement>(null);
+  const galleryRef = useRef<HTMLDivElement>(null)
+  const isDragging = useRef(false)
+  const startX = useRef(0)
+  const scrollLeftStart = useRef(0)
 
-  const scrollLeft = () => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    isDragging.current = true
+    startX.current = e.pageX - (galleryRef.current?.offsetLeft || 0)
+    scrollLeftStart.current = galleryRef.current?.scrollLeft || 0
+    galleryRef.current!.classList.add('cursor-grabbing')
+  }
+
+  const handleMouseLeave = () => {
+    isDragging.current = false
+    galleryRef.current!.classList.remove('cursor-grabbing')
+  }
+
+  const handleMouseUp = () => {
+    isDragging.current = false
+    galleryRef.current!.classList.remove('cursor-grabbing')
+  }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current) return
+    e.preventDefault()
+    const x = e.pageX - (galleryRef.current?.offsetLeft || 0)
+    const walk = (x - startX.current) * 1 // dapat disesuaikan kecepatan scroll-nya
     if (galleryRef.current) {
-      galleryRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+      galleryRef.current.scrollLeft = scrollLeftStart.current - walk
     }
-  };
-
-  const scrollRight = () => {
-    if (galleryRef.current) {
-      galleryRef.current.scrollBy({ left: 320, behavior: 'smooth' });
-    }
-  };
+  }
 
   return (
     <div className="relative">
-      <div ref={galleryRef} className="flex overflow-hidden space-x-4 rounded">
+      <div
+        ref={galleryRef}
+        className="flex overflow-x-scroll scroll-smooth space-x-4 rounded cursor-grab"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+      >
         {projectImages.map((project) => (
           <div key={project.id} className="flex-shrink-0 w-80 h-80 relative group overflow-hidden rounded-lg">
             <Image
@@ -42,12 +75,11 @@ const HorizontalImageGallery = () => {
           </div>
         ))}
       </div>
-      <div className="absolute top-0 right-0 flex space-x-2 p-2">
-        <button onClick={scrollLeft} className="bg-white p-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center">&lt;</button>
-        <button onClick={scrollRight} className="bg-white p-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center">&gt;</button>
-      </div>
+      {/* Tombol panah dapat tetap dipertahankan jika diinginkan,
+          namun dengan drag-to-scroll, biasanya perangkat touch sudah mendukung scroll secara native */}
+      
     </div>
-  );
-};
+  )
+}
 
-export default HorizontalImageGallery; 
+export default HorizontalImageGallery
