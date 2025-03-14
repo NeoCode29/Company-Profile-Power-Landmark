@@ -1,12 +1,6 @@
 import React from 'react';
-import Carousel from './Carousel';
 import { 
-  IoBrushOutline,
-  IoConstructOutline,
-  IoBusinessOutline,
-  IoHammerOutline,
   IoArrowForwardOutline,
-  IoCheckmarkCircleOutline
 } from 'react-icons/io5';
 import ServiceCard from './ServiceCard';
 import PriceListCard from './PriceListCard';

@@ -1,11 +1,5 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { 
-  IoLocationOutline, 
-  IoCallOutline, 
-  IoMailOutline,
-  IoGlobeOutline
-} from 'react-icons/io5'
 import ContactForm from './ContactForm'
 
 const Footer = () => {

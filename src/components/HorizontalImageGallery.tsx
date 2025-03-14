@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import Image from 'next/image'
 
 interface ProjectImage {
