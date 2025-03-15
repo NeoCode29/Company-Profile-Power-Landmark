@@ -63,10 +63,10 @@ const PriceListCard: React.FC = () => {
                 {service.name}
               </h3>
               <div className="flex items-baseline mt-1">
-                <span className="text-sm md:text-base text-gray-500">
+                <span className="text-[12px] md:text-base text-gray-500">
                   Starting from
                 </span>
-                <span className="ml-1 text-lg md:text-xl font-bold text-gray-900">
+                <span className="ml-1 text-[12px] md:text-xl font-bold text-gray-900">
                   Rp {service.price}
                 </span>
                 <span className="ml-1 text-gray-600 text-sm md:text-base">
@@ -94,12 +94,12 @@ const PriceListCard: React.FC = () => {
       </div>
       
       <div className="bg-gray-50 px-6 py-4 text-center">
-        <p className="text-gray-600 text-xs md:text-sm">
+        <p className="text-gray-600 text-xs md:text-sm mb-4">
           *Prices may vary depending on project complexity and location
         </p>
-        <button className="mt-3 px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-300 text-sm md:text-base">
+        <a href='https://wa.me/+622129222999' className="mt-8 px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-300 text-sm md:text-base ">
           Free Consultation
-        </button>
+        </a>
       </div>
     </div>
   );

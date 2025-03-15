@@ -1,7 +1,4 @@
 import React from 'react';
-import { 
-  IoArrowForwardOutline,
-} from 'react-icons/io5';
 import ServiceCard from './ServiceCard';
 import PriceListCard from './PriceListCard';
 
@@ -11,7 +8,7 @@ const Service: React.FC = () => {
       <main>
         <article>
           {/* Hero Section */}
-          <section className="bg-gray-100 py-24 lg:pt-56">
+          <section className="bg-gray-100 py-24 pt-48 lg:pt-56">
             <div className="container mx-auto px-4">
               <div className="text-center max-w-4xl mx-auto">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
@@ -127,8 +124,8 @@ const Service: React.FC = () => {
           {/* CTA Section */}
           <section className="py-16 bg-green-50">
             <div className="container mx-auto px-4">
-              <div className="bg-green-600 rounded-lg shadow-lg p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="text-center md:text-left">
+              <div className="bg-green-600 rounded-lg shadow-lg p-8 md:p-12 flex flex-col items-center justify-center gap-8">
+                <div className="text-center">
                   <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
                     Ready to Realize Your Dream Home?
                   </h2>
@@ -136,13 +133,6 @@ const Service: React.FC = () => {
                     Consult your needs with our professional team
                   </p>
                 </div>
-                <a 
-                  href="https://wa.me/+622129222999" 
-                  className="bg-white text-gray-900 px-8 py-3 rounded font-semibold flex items-center gap-2 hover:bg-gray-900 hover:text-white transition-colors duration-300"
-                >
-                  <span>Contact Us</span>
-                  <IoArrowForwardOutline size={18} />
-                </a>
               </div>
             </div>
           </section>
