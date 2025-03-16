@@ -241,30 +241,6 @@ const Main = () => {
             <HorizontalImageGallery />
           </div>
         </section>
-
-        {/* CTA Section */}
-        <section className="py-16 bg-green-50">
-          <div className="container mx-auto px-4">
-            <div className="bg-green-600 rounded-lg shadow-lg p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="text-center md:text-left">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
-                  Looking for a dream home?
-                </h2>
-                <p className="text-white text-base md:text-lg">
-                  We can help you realize your dream of a new home
-                </p>
-              </div>
-
-              <a 
-                href="https://wa.me/+622129222999" 
-                className="bg-white text-gray-900 px-8 py-3 rounded font-semibold flex items-center gap-2 hover:bg-gray-900 hover:text-white transition-colors duration-300"
-              >
-                <span>Contact Us</span>
-                <IoArrowForwardOutline size={18} />
-              </a>
-            </div>
-          </div>
-        </section>
       </article>
     </main>
   )

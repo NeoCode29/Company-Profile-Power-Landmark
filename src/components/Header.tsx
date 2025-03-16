@@ -5,11 +5,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { 
   IoMenuOutline, 
-  IoCloseOutline, 
-  IoLogoWhatsapp,
+  IoCloseOutline,
   IoWallet,
-  IoChevronDown,
-  IoCallOutline
+  IoChevronDown
 } from 'react-icons/io5'
 
 // Tipe untuk link navigasi
@@ -150,11 +148,10 @@ const Header: React.FC = () => {
       href: '/service', 
       label: 'Service',
       submenu: [
-        { href: 'tel:+622129222999', label: 'Contact Us', icon: <IoCallOutline size={16} /> },
         { href: '/payment', label: 'Payment', icon: <IoWallet size={16} /> },
-        { href: 'https://wa.me/+622129222999', label: 'WhatsApp', icon: <IoLogoWhatsapp size={16} /> },
       ],
     },
+    { href: '/contact-us', label: 'Contact Us' },
   ]
 
   return (
@@ -186,7 +183,7 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center">
-            <ul className="flex items-center gap-16">
+            <ul className="flex items-center gap-8">
               {navLinks.map((link) => (
                 <DesktopNavItem key={link.href} link={link} />
               ))}
