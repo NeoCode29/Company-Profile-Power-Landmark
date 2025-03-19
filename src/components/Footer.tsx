@@ -30,7 +30,7 @@ const Footer = () => {
           {/* Informasi Kontak */}
           <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Hubungi Kami</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Us</h3>
               <ul className="space-y-4">
                 <li className="flex items-center">
                   <IoCallOutline className="text-2xl text-green-500 mr-3" />
@@ -54,7 +54,7 @@ const Footer = () => {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Informasi Lain</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Other Information</h3>
               <ul className="space-y-4">
                 <li className="flex items-center">
                   <IoGlobeOutline className="text-2xl text-green-500 mr-3" />
@@ -65,7 +65,7 @@ const Footer = () => {
                     www.cvpowerlandmark.com
                   </Link>
                 </li>
-                <li className="flex items-centerleft">
+                <li className="flex items-center">
                   <IoLocationOutline className="text-5xl text-green-500 mr-3" />
                   <span className="text-gray-700">
                     Prominence Office Tower Lt 28 Suite C, Jl Sutera Barat No 15, Alam Sutera, Tangerang, Indonesia
@@ -78,8 +78,12 @@ const Footer = () => {
       </div>
       {/* Baris Bawah Footer */}
       <div className="bg-gray-100 border-t border-gray-200 py-4">
-        <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
-          &copy; {new Date().getFullYear()} Power Landmark. All rights reserved.
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-2 text-center text-gray-600 text-sm">
+          <span>&copy; {new Date().getFullYear()} Power Landmark. All rights reserved.</span>
+          <span className="hidden sm:block">|</span>
+          <Link href="/terms" className="text-gray-600 hover:underline">
+            Terms and Conditions
+          </Link>
         </div>
       </div>
     </footer>
