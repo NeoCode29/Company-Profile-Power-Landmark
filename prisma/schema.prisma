@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db" // env("DATABASE_URL")
+}
+
+model transaction{
+  id    String @id @default(uuid())
+  name  String
+  email String
+  phone String
+  address String
+  service String
+  nominal String
+  status String
+  updateAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}

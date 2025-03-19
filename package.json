@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@ionic/react": "^8.4.3",
+    "@prisma/client": "^6.5.0",
+    "better-sqlite3": "^11.9.1",
     "ionicons": "^7.4.0",
     "midtrans-client": "^1.4.2",
     "next": "15.2.1",
@@ -25,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.1",
+    "prisma": "^6.5.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
