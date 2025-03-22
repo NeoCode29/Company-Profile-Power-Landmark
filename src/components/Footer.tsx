@@ -76,6 +76,61 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      {/* Bagian Metode Pembayaran */}
+      <div className="container mx-auto px-4 py-8 border-t border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          Metode Pembayaran yang Diterima
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Bank Transfer */}
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2">Bank Transfer</h4>
+            <div className="flex items-center gap-4">
+              <Image src="/images/payment-gateway/bni.png" alt="BNI" width={50} height={50} />
+              <Image src="/images/payment-gateway/bca.png" alt="BCA" width={50} height={50} />
+              <Image src="/images/payment-gateway/mandiri.png" alt="Mandiri" width={50} height={50} />
+              <Image src="/images/payment-gateway/permata.png" alt="Permata" width={50} height={50} />
+            </div>
+          </div>
+          {/* Dompet Digital / E-Wallet */}
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2">Dompet Digital / E-Wallet</h4>
+            <div className="flex items-center gap-4">
+              <Image src="/images/payment-gateway/dana.png" alt="Dana" width={50} height={50} />
+              <Image src="/images/payment-gateway/google-pay.png" alt="Google Pay" width={50} height={50} />
+              <Image src="/images/payment-gateway/gopay.png" alt="Gopay" width={50} height={50} />
+              <Image src="/images/payment-gateway/shopee-pay.png" alt="Shopee Pay" width={50} height={50} />
+            </div>
+          </div>
+          {/* Kartu Kredit / Internasional */}
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2">Kartu Kredit / Internasional</h4>
+            <div className="flex items-center gap-4">
+              <Image src="/images/payment-gateway/jcb.png" alt="JCB" width={50} height={50} />
+              <Image src="/images/payment-gateway/mastercard.png" alt="Mastercard" width={50} height={50} />
+              <Image src="/images/payment-gateway/visa.png" alt="Visa" width={50} height={50} />
+            </div>
+          </div>
+          {/* Cicilan */}
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2">Cicilan</h4>
+            <div className="flex items-center gap-4">
+              <Image src="/images/payment-gateway/akulaku.png" alt="Akulaku" width={50} height={50} />
+              <Image src="/images/payment-gateway/kredivo.png" alt="Kredivo" width={50} height={50} />
+            </div>
+          </div>
+          {/* Retail / QR */}
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2">Retail / QR</h4>
+            <div className="flex items-center gap-4">
+              <Image src="/images/payment-gateway/indomaret.png" alt="Indomaret" width={50} height={50} />
+              <Image src="/images/payment-gateway/qris.png" alt="QRIS" width={50} height={50} />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Baris Bawah Footer */}
       <div className="bg-gray-100 border-t border-gray-200 py-4">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-2 text-center text-gray-600 text-sm">
