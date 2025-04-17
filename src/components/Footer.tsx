@@ -23,7 +23,8 @@ const Footer = () => {
               height={150}
               className="mx-auto md:mx-0 rounded-full"
             />
-            <p className="mt-4 text-gray-700 leading-relaxed">
+            <h2 className="mt-4 text-xl font-bold text-gray-900">PT POWER LANDMARK</h2>
+            <p className="mt-2 text-gray-700 leading-relaxed">
               Power Landmark adalah perusahaan terdepan di bidang solusi digital, menyediakan inovasi teknologi untuk mendukung pertumbuhan bisnis Anda.
             </p>
           </div>

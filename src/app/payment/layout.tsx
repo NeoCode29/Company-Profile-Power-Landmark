@@ -7,7 +7,7 @@ export default function PaymentLayout({
     children: React.ReactNode;
   }>) {
     return (
-      <div>
+      <div className="font-sans">
         <Header/>
         {children}
         <Footer/>
