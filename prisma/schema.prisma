@@ -3,19 +3,30 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db" // env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model transaction{
+model Product{
+  id    String @id @default(uuid())
+  name  String
+  price Int
+  stock Int
+  description String
+  image ImageProduct[]
+}
+
+model ImageProduct{
+  id    String @id @default(uuid())
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+  url String
+}
+
+model User{
   id    String @id @default(uuid())
   name  String
   email String
-  phone String
-  address String
-  service String
-  nominal String
-  status String
-  updateAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  password String 
 }
+

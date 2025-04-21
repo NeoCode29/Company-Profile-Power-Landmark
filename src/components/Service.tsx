@@ -1,9 +1,91 @@
 import React from 'react';
-import ServiceCard from './ServiceCard';
+import EnhancedServiceCard from './EnhancedServiceCard';
 import PriceListCard from './PriceListCard';
 import Header from './Header';
 
 const Service: React.FC = () => {
+  const services = [
+    {
+      id: "architecture-design",
+      title: "Architecture Design",
+      description: "We create architectural designs that blend aesthetics with functionality. Each design is tailored to reflect your personality and lifestyle.",
+      price: 500000,
+      priceUnit: "/m²",
+      features: [
+        "Premium quality materials",
+        "Experienced construction team",
+        "Professional project management",
+        "Construction quality assurance"
+      ],
+      note: "Sketsa denah konsep dalam 5-7 hari kerja.",
+      freeRevision: "Anda akan mendapatkan desain yang original dan lengkap sesuai dengan kebutuhan anda dan dikerjakan oleh tim arsitek, sipil drafter, 3d visual artist yang berpengalaman dan terpercaya sehingga desain yang dihasilkan siap untuk dibangun dengan aman dan hasil jadi rumah sesuai harapan klien.",
+      images: [
+        '/images/architecture-design/image1.jpg',
+        '/images/architecture-design/image2.jpg'
+      ]
+    },
+    {
+      id: "private-home-construction",
+      title: "Private Home Construction",
+      description: "Building your dream home with the highest quality standards. We handle every construction detail to ensure perfect results.",
+      price: 5000000,
+      priceUnit: "/m²",
+      features: [
+        "Premium quality materials",
+        "Experienced construction team",
+        "Professional project management",
+        "Construction quality assurance"
+      ],
+      images: [
+        '/images/private-home-construction/image1.jpg',
+        '/images/private-home-construction/image2.jpg',
+        '/images/private-home-construction/image3.jpg',
+        '/images/private-home-construction/image4.jpg',
+        '/images/private-home-construction/image5.jpg'
+      ]
+    },
+    {
+      id: "villa-development",
+      title: "Villa Development",
+      description: "Creating luxurious villas that combine luxury with comfort. Each villa is designed to provide a unique living experience.",
+      price: 7500000,
+      priceUnit: "/m²",
+      features: [
+        "Exclusive villa designs",
+        "Premium features and facilities",
+        "Beautiful landscaping",
+        "Smart home integration"
+      ],
+      images: [
+        '/images/private-villa-construction/image1.jpg',
+        '/images/private-villa-construction/image2.jpg',
+        '/images/private-villa-construction/image3.jpg',
+        '/images/private-villa-construction/image4.jpg'
+      ]
+    },
+    {
+      id: "renovation-services",
+      title: "Renovation Services",
+      description: "Transforming existing spaces into more modern and functional environments. We help you maximize the potential of your property.",
+      price: 2000000,
+      priceUnit: "/m²",
+      features: [
+        "Detailed renovation planning",
+        "Creative design solutions",
+        "Efficient execution",
+        "Quality renovation results"
+      ],
+      images: [
+        '/images/renovation-services/image1.jpg',
+        '/images/renovation-services/image2.jpg',
+        '/images/renovation-services/image3.jpg',
+        '/images/renovation-services/image4.jpg',
+        '/images/renovation-services/image5.jpg',
+        '/images/renovation-services/image6.jpg'
+      ]
+    }
+  ];
+
   return (
     <>
       <Header />
@@ -38,98 +120,20 @@ const Service: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-white to-transparent"></div>
             <div className='container mx-auto px-4 relative z-10'>
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:grid-rows-2 lg:items-start lg:gap-12">
-                <ServiceCard 
-                  imageUrls={[
-                    '/images/architecture-design/image1.jpg',
-                    '/images/architecture-design/image2.jpg'
-                  ]}
-                  title="Architecture Design"
-                  description="We create architectural designs that blend aesthetics with functionality. Each design is tailored to reflect your personality and lifestyle."
-                  features={[
-                    "Premium quality materials",
-                    "Experienced construction team",
-                    "Professional project management",
-                    "Construction quality assurance"
-                  ]}
+                {services.map((service) => (
+                  <EnhancedServiceCard 
+                    key={service.id}
+                    imageUrls={service.images}
+                    service={service}
                   aspectRatio="16:9"
                   interval={5000}
                   showArrows={false}
                   showDots={true}
                   autoPlay={true}
                   theme="dark"
-                />
-
-                <ServiceCard 
-                  imageUrls={[
-                    '/images/private-home-construction/image1.jpg',
-                    '/images/private-home-construction/image2.jpg',
-                    '/images/private-home-construction/image3.jpg',
-                    '/images/private-home-construction/image4.jpg',
-                    '/images/private-home-construction/image5.jpg'
-                  ]}
-                  title="Private Home Construction"
-                  description="Building your dream home with the highest quality standards. We handle every construction detail to ensure perfect results."
-                  features={[
-                    "Premium quality materials",
-                    "Experienced construction team",
-                    "Professional project management",
-                    "Construction quality assurance"
-                  ]}
-                  aspectRatio="16:9"
-                  interval={5000}
-                  showArrows={false}
-                  showDots={true}
-                  autoPlay={true}
-                  theme="dark"
-                />
-
-                <ServiceCard 
-                  imageUrls={[
-                    '/images/private-villa-construction/image1.jpg',
-                    '/images/private-villa-construction/image2.jpg',
-                    '/images/private-villa-construction/image3.jpg',
-                    '/images/private-villa-construction/image4.jpg'
-                  ]}
-                  title="Villa Development"
-                  description="Creating luxurious villas that combine luxury with comfort. Each villa is designed to provide a unique living experience."
-                  features={[
-                    "Exclusive villa designs",
-                    "Premium features and facilities",
-                    "Beautiful landscaping",
-                    "Smart home integration"
-                  ]}
-                  aspectRatio="16:9"
-                  interval={5000}
-                  showArrows={false}
-                  showDots={true}
-                  autoPlay={true}
-                  theme="dark"
-                />
-
-                <ServiceCard 
-                  imageUrls={[
-                    '/images/renovation-services/image1.jpg',
-                    '/images/renovation-services/image2.jpg',
-                    '/images/renovation-services/image3.jpg',
-                    '/images/renovation-services/image4.jpg',
-                    '/images/renovation-services/image5.jpg',
-                    '/images/renovation-services/image6.jpg'
-                  ]}
-                  title="Renovation Services"
-                  description="Transforming existing spaces into more modern and functional environments. We help you maximize the potential of your property."
-                  features={[
-                    "Detailed renovation planning",
-                    "Creative design solutions",
-                    "Efficient execution",
-                    "Quality renovation results"
-                  ]}
-                  aspectRatio="16:9"
-                  interval={5000}
-                  showArrows={false}
-                  showDots={true}
-                  autoPlay={true}
-                  theme="dark"
-                />
+                    isArchitectDesign={service.id === "architecture-design"}
+                  />
+                ))}
               </div>
             </div>
           </section>
