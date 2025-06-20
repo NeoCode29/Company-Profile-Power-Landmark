@@ -5,6 +5,13 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("DATABASE_SCHEMA_URL")
+}
+
+enum ProductCategory {
+  ARCHITECTURAL_DESIGN
+  RENOVATION
+  CONSTRUCTION
 }
 
 model Product{
@@ -13,7 +20,9 @@ model Product{
   price Int
   stock Int
   description String
+  category ProductCategory
   image ImageProduct[]
+  orders OrderItem[]
 }
 
 model ImageProduct{
@@ -23,10 +32,111 @@ model ImageProduct{
   url String
 }
 
-model User{
+model Service{
   id    String @id @default(uuid())
   name  String
-  email String
-  password String 
+  price Int
+  size  String
+  orders      OrderItem[]
 }
 
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  password      String
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+ 
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+}
+ 
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  orderNumber   String      @unique
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  status        OrderStatus @default(PENDING)
+  totalAmount   Int
+  customerName  String
+  customerEmail String
+  customerPhone String
+  customerAddress String
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentUrl    String?
+  paymentToken  String?
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String    @id @default(uuid())
+  orderId     String
+  order       Order     @relation(fields: [orderId], references: [id])
+  serviceId   String?
+  service     Service?  @relation(fields: [serviceId], references: [id])
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id])
+  quantity    Int
+  size        String?
+  price       Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  REFUNDED
+}

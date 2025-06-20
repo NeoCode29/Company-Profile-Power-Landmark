@@ -14,6 +14,7 @@ import {
   IoLayersOutline,
   IoMailOutline
 } from 'react-icons/io5'
+import { CartIcon } from './CartIcon'
 
 // Types
 export interface NavLink {
@@ -54,34 +55,36 @@ const DesktopNavItem: React.FC<NavItemProps> = ({ link, active }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Link href={link.href} legacyBehavior>
-        <a className={`inline-flex items-center px-4 py-2 rounded-md text-gray-800 group-hover:text-green-600 transition-all duration-300 font-medium relative ${
+      <Link 
+        href={link.href} 
+        className={`inline-flex items-center px-4 py-2 rounded-md text-gray-800 group-hover:text-green-600 transition-all duration-300 font-medium relative ${
           active ? 'text-green-600' : ''
-        }`}>
-          <span className="mr-2 text-green-600">{link.icon}</span>
-          {link.label}
-          {hasSubmenu && (
-            <IoChevronDown 
-              size={16} 
-              className={`ml-1 transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
-            />
-          )}
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-600 group-hover:w-full transition-all duration-300"></span>
-        </a>
+        }`}
+      >
+        <span className="mr-2 text-green-600">{link.icon}</span>
+        {link.label}
+        {hasSubmenu && (
+          <IoChevronDown 
+            size={16} 
+            className={`ml-1 transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
+          />
+        )}
+        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-green-600 group-hover:w-full transition-all duration-300"></span>
       </Link>
       {hasSubmenu && isOpen && (
         <ul className="absolute left-0 top-full mt-1 bg-white/95 backdrop-blur-sm shadow-xl rounded-lg overflow-hidden min-w-[200px] border border-gray-100 z-50 transform translate-y-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300">
           {link.submenu!.map((sublink) => (
             <li key={sublink.href}>
-              <Link href={sublink.href} legacyBehavior>
-                <a className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 border-b border-gray-100 last:border-0 hover:text-green-600">
-                  {sublink.icon && (
-                    <span className="text-green-600">
-                      {sublink.icon}
-                    </span>
-                  )}
-                  {sublink.label}
-                </a>
+              <Link 
+                href={sublink.href}
+                className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 border-b border-gray-100 last:border-0 hover:text-green-600"
+              >
+                {sublink.icon && (
+                  <span className="text-green-600">
+                    {sublink.icon}
+                  </span>
+                )}
+                {sublink.label}
               </Link>
             </li>
           ))}
@@ -104,13 +107,14 @@ const MobileNavItem: React.FC<NavItemProps> = ({ link, active }) => {
   return (
     <li className="border-b border-gray-800/30 pb-2 last:border-0">
       <div className="flex items-center justify-between">
-        <Link href={link.href} legacyBehavior>
-          <a className={`flex items-center gap-3 py-2 rounded text-gray-100 hover:text-green-400 font-medium text-base transition-all duration-300 ${
+        <Link 
+          href={link.href}
+          className={`flex items-center gap-3 py-2 rounded text-gray-100 hover:text-green-400 font-medium text-base transition-all duration-300 ${
             active ? 'text-green-400' : ''
-          }`}>
-            <span className="text-green-500">{link.icon}</span>
-            {link.label}
-          </a>
+          }`}
+        >
+          <span className="text-green-500">{link.icon}</span>
+          {link.label}
         </Link>
         {link.submenu && (
           <button onClick={toggleSubmenu} className="text-gray-300 hover:text-green-400 transition-colors p-2">
@@ -118,28 +122,29 @@ const MobileNavItem: React.FC<NavItemProps> = ({ link, active }) => {
               size={16}
               className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
             />
-                    </button>
+          </button>
         )}
-                </div>
+      </div>
       {link.submenu && isExpanded && (
         <ul className="pl-8 pt-2 space-y-3">
           {link.submenu.map((sublink) => (
             <li key={sublink.href}>
-              <Link href={sublink.href} legacyBehavior>
-                <a className="flex items-center gap-3 py-1 rounded hover:text-green-400 text-gray-300 transition-all duration-300">
-                  {sublink.icon && (
-                    <span className="text-green-500">
-                      {sublink.icon}
-                    </span>
-                  )}
-                  {sublink.label}
-                </a>
+              <Link 
+                href={sublink.href}
+                className="flex items-center gap-3 py-1 rounded hover:text-green-400 text-gray-300 transition-all duration-300"
+              >
+                {sublink.icon && (
+                  <span className="text-green-500">
+                    {sublink.icon}
+                  </span>
+                )}
+                {sublink.label}
               </Link>
-                    </li>
+            </li>
           ))}
         </ul>
       )}
-                    </li>
+    </li>
   )
 }
 
@@ -185,17 +190,18 @@ const Header: React.FC = () => {
       }`}>
         <div className="flex items-center justify-between h-16 px-6">
           {/* Logo */}
-          <Link href="/" legacyBehavior>
-            <a className="flex-shrink-0 transition-transform duration-300 hover:scale-105">
-              <Image 
-                src="/images/logo.png" 
-                alt="Logo" 
-                width={180} 
-                height={180} 
-                className="w-18 h-18 lg:w-18 lg:h-18 object-contain rounded-full invert"
-                priority
-              />
-            </a>
+          <Link 
+            href="/" 
+            className="flex-shrink-0 transition-transform duration-300 hover:scale-105"
+          >
+            <Image 
+              src="/images/logo.png" 
+              alt="Logo" 
+              width={180} 
+              height={180} 
+              className="w-18 h-18 lg:w-18 lg:h-18 object-contain rounded-full invert"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -208,17 +214,12 @@ const Header: React.FC = () => {
                   active={activePath === link.href}
                 />
               ))}
-                    </ul>
-                </nav>
+            </ul>
+          </nav>
 
           {/* Cart & Mobile Menu Button */}
           <div className="flex items-center gap-4">
-            <Link href="/cart" legacyBehavior>
-              <a className="relative flex items-center justify-center w-10 h-10 rounded-full bg-green-50 text-green-600 hover:bg-green-100 transition-all duration-300 hover:shadow-md">
-                <IoCartOutline size={20} />
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full shadow-sm">0</span>
-              </a>
-            </Link>
+            <CartIcon />
             
             <button 
               className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-green-50 text-green-600 hover:bg-green-100 transition-all duration-300 hover:shadow-md"
@@ -226,7 +227,7 @@ const Header: React.FC = () => {
               aria-label="Open Menu"
             >
               <IoMenuOutline size={20} />
-                </button>
+            </button>
           </div>
         </div>
       </div>
@@ -244,19 +245,20 @@ const Header: React.FC = () => {
         isNavOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="flex justify-between items-center p-5 border-b border-gray-800/30">
-          <Link href="/" legacyBehavior>
-            <a className="flex items-center space-x-2">
-              <div className="relative w-8 h-8 overflow-hidden">
-                <Image 
-                  src="/images/logo.png" 
-                  alt="Logo" 
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <span className="font-bold text-white">PowerLandmark</span>
-            </a>
+          <Link 
+            href="/" 
+            className="flex items-center space-x-2"
+          >
+            <div className="relative w-8 h-8 overflow-hidden">
+              <Image 
+                src="/images/logo.png" 
+                alt="Logo" 
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <span className="font-bold text-white">PowerLandmark</span>
           </Link>
           <button 
             onClick={toggleNav}
@@ -264,8 +266,8 @@ const Header: React.FC = () => {
             aria-label="Close Menu"
           >
             <IoCloseOutline size={24} />
-                </button>
-                </div>
+          </button>
+        </div>
         <div className="p-5">
           <ul className="space-y-1">
             {navLinks.map((link) => (
@@ -277,16 +279,17 @@ const Header: React.FC = () => {
             ))}
           </ul>
           <div className="mt-8 pt-6 border-t border-gray-800/30">
-            <Link href="/cart" legacyBehavior>
-              <a className="flex items-center gap-3 py-2 text-gray-100 hover:text-green-400 font-medium transition-all duration-300 group">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-900/50 text-green-500 group-hover:bg-green-800/60 transition-colors duration-300">
-                  <IoCartOutline size={18} />
-                </span>
-                Shopping Cart
-                <span className="ml-auto flex items-center justify-center min-w-6 h-6 px-2 text-xs font-bold text-white bg-green-700 rounded-full">0</span>
-              </a>
+            <Link 
+              href="/cart" 
+              className="flex items-center gap-3 py-2 text-gray-100 hover:text-green-400 font-medium transition-all duration-300 group"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-900/50 text-green-500 group-hover:bg-green-800/60 transition-colors duration-300">
+                <IoCartOutline size={18} />
+              </span>
+              Shopping Cart
+              <span className="ml-auto flex items-center justify-center min-w-6 h-6 px-2 text-xs font-bold text-white bg-green-700 rounded-full">0</span>
             </Link>
-            </div>
+          </div>
         </div>
       </div>
     </header>

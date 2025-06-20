@@ -20,6 +20,9 @@
 # production
 /build
 
+
+credentials.json
+
 # misc
 .DS_Store
 *.pem
