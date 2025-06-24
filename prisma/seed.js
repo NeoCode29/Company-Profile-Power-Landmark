@@ -1,10 +1,14 @@
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
 async function main() {
   // Clear existing data
-  await prisma.service.deleteMany();
+  try {
+    await prisma.service.deleteMany();
+  } catch (error) {
+    console.log('Tabel service tidak ditemukan atau error:', error.message);
+  }
 
   // Create architectural services
   const services = [

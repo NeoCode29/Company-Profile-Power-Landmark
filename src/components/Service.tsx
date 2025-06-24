@@ -6,6 +6,7 @@ import { AnimateInView } from './AnimateInView';
 import { prisma } from '@/lib/prisma';
 import { Service as ServiceType } from '@prisma/client';
 import { formatPrice } from '@/lib/utils';
+import { useCart } from '@/context/CartContext';
 import {
   Dialog,
   DialogContent,
@@ -123,24 +124,52 @@ const Service: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>('');
+  const [areaInput, setAreaInput] = useState<string>('');
+  const { addToCart } = useCart();
 
   const handleServiceClick = (service: ServiceData) => {
     setSelectedService(service);
     setIsDialogOpen(true);
   };
 
-  const handleOrderClick = (service: ServiceData, area?: number) => {
+  const handleOrderClick = (service: ServiceData) => {
     setSelectedService(service);
-    if (area) {
-      setSelectedOption(area.toString());
-    }
     setIsOrderDialogOpen(true);
   };
 
-  const handleOrderSubmit = () => {
-    // Handle order submission here
-    console.log('Order submitted:', { service: selectedService, option: selectedOption });
+  const handleAddToCart = () => {
+    if (!selectedService) return;
+
+    let finalPrice = 0;
+    let itemName = selectedService.title;
+    let itemId = selectedService.id;
+
+    if (selectedService.id === "architecture-design") {
+      const selectedOptionData = architecturalOptions.find(opt => opt.name === selectedOption);
+      if (selectedOptionData) {
+        finalPrice = selectedOptionData.price;
+        itemName = `${selectedService.title} - ${selectedOption}`;
+        itemId = `${selectedService.id}-${selectedOption}`;
+      }
+    } else {
+      const area = parseInt(areaInput) || 0;
+      finalPrice = selectedService.price * area;
+      itemName = `${selectedService.title} - ${area}m²`;
+      itemId = `${selectedService.id}-${area}`;
+    }
+
+    addToCart({
+      id: itemId,
+      name: itemName,
+      price: finalPrice,
+      quantity: 1,
+      image: selectedService.images[0] || '/placeholder-service.png',
+      type: 'service'
+    });
+
     setIsOrderDialogOpen(false);
+    setAreaInput('');
+    setSelectedOption('');
   };
 
   return (
@@ -196,7 +225,7 @@ const Service: React.FC = () => {
                         autoPlay={true}
                         theme="dark"
                         isArchitectDesign={service.id === "architecture-design"}
-                        onOrderClick={(area) => handleOrderClick(service, area)}
+                        onOrderClick={() => handleOrderClick(service)}
                       />
                     </div>
                   </AnimateInView>
@@ -286,7 +315,7 @@ const Service: React.FC = () => {
                   }}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
-                  Order Now
+                  Add to Cart
                 </button>
               </div>
             </div>
@@ -296,7 +325,13 @@ const Service: React.FC = () => {
 
       {/* Order Dialog */}
       {selectedService && (
-        <Dialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>
+        <Dialog open={isOrderDialogOpen} onOpenChange={(open) => {
+          setIsOrderDialogOpen(open);
+          if (!open) {
+            setAreaInput('');
+            setSelectedOption('');
+          }
+        }}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">Order {selectedService.title}</DialogTitle>
@@ -321,8 +356,31 @@ const Service: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Service Details</h3>
+                  <div className="space-y-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-gray-600">Price: {formatPrice(selectedService.price)} {selectedService.priceUnit}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="area" className="text-sm font-medium">Luas Area (m²)</Label>
+                      <input
+                        id="area"
+                        type="number"
+                        value={areaInput}
+                        onChange={(e) => setAreaInput(e.target.value)}
+                        placeholder="Masukkan luas area"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        min="1"
+                      />
+                    </div>
+                    
+                    {areaInput && (
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <p className="text-sm text-green-800">
+                          <strong>Total Harga:</strong> {formatPrice(selectedService.price * parseInt(areaInput) || 0)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -335,11 +393,14 @@ const Service: React.FC = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleOrderSubmit}
-                  disabled={selectedService.id === "architecture-design" && !selectedOption}
+                  onClick={handleAddToCart}
+                  disabled={
+                    (selectedService.id === "architecture-design" && !selectedOption) ||
+                    (selectedService.id !== "architecture-design" && !areaInput)
+                  }
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Proceed to Order
+                  Add to Cart
                 </button>
               </DialogFooter>
             </div>

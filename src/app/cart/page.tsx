@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import { useCart } from '@/context/CartContext';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, totalPrice } = useCart();
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const { cartItems, removeFromCart, updateQuantity, totalPrice, selectedItems, setSelectedItems, selectedTotalPrice } = useCart();
+  const router = useRouter();
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -21,15 +22,15 @@ export default function CartPage() {
 
   const handleSelectItem = (itemId: string, checked: boolean) => {
     if (checked) {
-      setSelectedItems(prev => [...prev, itemId]);
+      setSelectedItems([...selectedItems, itemId]);
     } else {
-      setSelectedItems(prev => prev.filter(id => id !== itemId));
+      setSelectedItems(selectedItems.filter(id => id !== itemId));
     }
   };
 
-  const selectedTotal = cartItems
-    .filter(item => selectedItems.includes(item.id))
-    .reduce((total, item) => total + (item.price * item.quantity), 0);
+  const isService = (item: any) => {
+    return item.type === 'service' || item.id.startsWith('service-');
+  };
 
   return (
     <>
@@ -58,57 +59,68 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {cartItems.map((item) => (
-                  <div key={item.id} className="bg-white rounded-lg shadow-sm p-6 mb-4">
-                    <div className="flex items-center gap-4">
-                      <Checkbox
-                        id={`select-${item.id}`}
-                        checked={selectedItems.includes(item.id)}
-                        onCheckedChange={(checked) => handleSelectItem(item.id, checked as boolean)}
-                      />
-                      <div className="relative w-24 h-24">
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          fill
-                          className="object-cover rounded-md"
+                {cartItems.map((item) => {
+                  const isServiceItem = isService(item);
+                  return (
+                    <div key={item.id} className="bg-white rounded-lg shadow-sm p-6 mb-4">
+                      <div className="flex items-center gap-4">
+                        <Checkbox
+                          id={`select-${item.id}`}
+                          checked={selectedItems.includes(item.id)}
+                          onCheckedChange={(checked) => handleSelectItem(item.id, checked as boolean)}
                         />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                        <p className="text-green-600 font-bold mt-1">{formatPrice(item.price)}</p>
-                        <div className="flex items-center gap-4 mt-2">
-                          <div className="flex items-center border rounded-md">
+                        <div className="relative w-24 h-24">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover rounded-md"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                          <p className="text-green-600 font-bold mt-1">{formatPrice(item.price)}</p>
+                          <div className="flex items-center gap-4 mt-2">
+                            {isServiceItem ? (
+                              <div className="flex items-center">
+                                <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-md">
+                                  Service
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center border rounded-md">
+                                <button
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                >
+                                  -
+                                </button>
+                                <span className="px-3 py-1">{item.quantity}</span>
+                                <button
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            )}
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                              onClick={() => removeFromCart(item.id)}
+                              className="text-red-600 hover:text-red-700"
                             >
-                              -
-                            </button>
-                            <span className="px-3 py-1">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                            >
-                              +
+                              Remove
                             </button>
                           </div>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            Remove
-                          </button>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-gray-900">
+                            {formatPrice(item.price * item.quantity)}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-gray-900">
-                          {formatPrice(item.price * item.quantity)}
-                        </p>
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               
               <div className="lg:col-span-1">
@@ -121,7 +133,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="font-semibold">{formatPrice(selectedTotal)}</span>
+                      <span className="font-semibold">{formatPrice(selectedTotalPrice)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Shipping</span>
@@ -130,11 +142,16 @@ export default function CartPage() {
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between">
                         <span className="text-lg font-bold text-gray-900">Total</span>
-                        <span className="text-lg font-bold text-green-600">{formatPrice(selectedTotal)}</span>
+                        <span className="text-lg font-bold text-green-600">{formatPrice(selectedTotalPrice)}</span>
                       </div>
                     </div>
                   </div>
                   <button 
+                    onClick={() => {
+                      if (selectedItems.length > 0) {
+                        router.push('/checkout');
+                      }
+                    }}
                     className={`w-full py-3 rounded-lg transition-colors duration-300 ${
                       selectedItems.length > 0 
                         ? 'bg-green-600 text-white hover:bg-green-700' 

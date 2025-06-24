@@ -8,6 +8,11 @@ export const { auth } = NextAuth(authConfig)
 
 // This function can be marked `async` if using `await` inside
 export default auth(function middleware(req) {
+  // Skip auth for iPay88 payment callbacks
+  if (req.nextUrl.pathname.startsWith('/api/payment/')) {
+    return NextResponse.next()
+  }
+  
   // Add any additional custom middleware logic here
   return NextResponse.next()
 })
@@ -19,7 +24,7 @@ export const config = {
     "/admin/:path*",
     "/dashboard/:path*",
     
-    // Skip auth check for these paths
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    // Skip auth check for these paths (include payment APIs)
+    "/((?!api/payment|api/auth|_next/static|_next/image|favicon.ico).*)",
   ],
 } 

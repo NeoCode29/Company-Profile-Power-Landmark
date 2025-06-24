@@ -5,7 +5,6 @@ import Carousel from './Carousel';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 import { FaLeaf, FaTools, FaHome, FaPalette } from 'react-icons/fa';
 import { ShoppingCart } from 'lucide-react';
-import { Input } from "@/components/ui/input";
 
 type AspectRatio = 
   | '1:1'       // Square
@@ -37,7 +36,7 @@ type EnhancedServiceCardProps = {
   autoPlay: boolean;
   theme?: "light" | "dark";
   isArchitectDesign?: boolean;
-  onOrderClick?: (area?: number) => void;
+  onOrderClick?: () => void;
 };
 
 const EnhancedServiceCard = ({ 
@@ -52,17 +51,9 @@ const EnhancedServiceCard = ({
   isArchitectDesign = false,
   onOrderClick
 } : EnhancedServiceCardProps) => {
-  const [area, setArea] = useState<string>('');
 
   const handleOrder = () => {
-    if (!isArchitectDesign) {
-      const areaNumber = parseFloat(area);
-      if (areaNumber > 0) {
-        onOrderClick?.(areaNumber);
-      }
-    } else {
-      onOrderClick?.();
-    }
+    onOrderClick?.();
   };
 
   // Get service icon based on service id
@@ -128,35 +119,13 @@ const EnhancedServiceCard = ({
               ))}
             </ul>
 
-            {/* Area Input for non-architectural services */}
-            {!isArchitectDesign && (
-              <div className="mb-4">
-                <label className="block text-white text-sm font-medium mb-2">
-                  Enter Area Size (m²)
-                </label>
-                <Input
-                  type="number"
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  placeholder="Enter area size"
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-green-500 focus:ring-green-500"
-                />
-                {area && (
-                  <p className="mt-2 text-sm text-gray-300">
-                    Estimated Price: Rp {(service.price * parseFloat(area || '0')).toLocaleString()}
-                  </p>
-                )}
-              </div>
-            )}
-
             {/* Order Button */}
             <button
               onClick={handleOrder}
-              disabled={!isArchitectDesign && (!area || parseFloat(area) <= 0)}
-              className="group flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 hover:shadow-lg hover:scale-105 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 hover:shadow-lg hover:scale-105 text-sm"
             >
               <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
-              <span className="font-medium">Order Now</span>
+              <span className="font-medium">Add to Cart</span>
             </button>
           </div>
         </div>

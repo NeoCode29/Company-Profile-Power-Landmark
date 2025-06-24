@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -9,9 +10,15 @@ datasource db {
 }
 
 enum ProductCategory {
-  ARCHITECTURAL_DESIGN
-  RENOVATION
-  CONSTRUCTION
+  FURNITURE
+  LIGHTING
+  DECORATION
+  KITCHEN
+  BATHROOM
+  BEDROOM
+  LIVING_ROOM
+  OFFICE
+  OUTDOOR
 }
 
 model Product{

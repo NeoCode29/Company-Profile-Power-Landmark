@@ -2,14 +2,19 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Product } from '@prisma/client';
 import { ProductDetailDialog } from '@/components/product/ProductDetailDialog';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'react-hot-toast';
 import { ShoppingCart } from 'lucide-react';
 
-interface ProductWithImages extends Product {
+interface ProductWithImages {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  description: string;
+  category: string;
   image: {
     id: string;
     url: string;
@@ -39,6 +44,7 @@ export function ProductList({ products }: ProductListProps) {
       price: product.price,
       quantity: 1,
       image: product.image[0]?.url || '',
+      type: 'product'
     });
     toast.success('Product added to cart!');
   };
@@ -111,6 +117,7 @@ export function ProductList({ products }: ProductListProps) {
               price: product.price,
               quantity,
               image: product.image[0]?.url || '',
+              type: 'product'
             });
             toast.success('Product added to cart!');
           }}

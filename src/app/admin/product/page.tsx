@@ -21,9 +21,10 @@ async function createProduct(formData: FormData): Promise<void> {
   const price = parseInt(formData.get('price') as string);
   const stock = parseInt(formData.get('stock') as string);
   const description = formData.get('description') as string;
+  const category = formData.get('category') as string;
   const imageFiles = formData.getAll('images');
 
-  if (!name || !price || !stock || !description) {
+  if (!name || !price || !stock || !description || !category) {
     throw new Error('All fields are required');
   }
 
@@ -49,6 +50,7 @@ async function createProduct(formData: FormData): Promise<void> {
         price,
         stock,
         description,
+        category: category as any,
         image: {
           create: imageUrls.map(url => ({ url }))
         }
@@ -70,10 +72,11 @@ async function updateProduct(formData: FormData): Promise<void> {
   const price = parseInt(formData.get('price') as string);
   const stock = parseInt(formData.get('stock') as string);
   const description = formData.get('description') as string;
+  const category = formData.get('category') as string;
   const imageFiles = formData.getAll('images');
   const existingImages = JSON.parse(formData.get('existingImages') as string) as string[];
 
-  if (!id || !name || !price || !stock || !description) {
+  if (!id || !name || !price || !stock || !description || !category) {
     throw new Error('All fields are required');
   }
 
@@ -122,6 +125,7 @@ async function updateProduct(formData: FormData): Promise<void> {
         price,
         stock,
         description,
+        category: category as any,
         image: {
           deleteMany: {}, // Remove all existing images from database
           create: allImageUrls.map(url => ({ url }))

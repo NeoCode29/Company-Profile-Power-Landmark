@@ -14,6 +14,7 @@ interface ProductCardProps {
     price: number;
     stock: number;
     description: string;
+    category: string;
     image: { id: string; url: string }[];
   };
   onView: (product: ProductCardProps['product']) => void;

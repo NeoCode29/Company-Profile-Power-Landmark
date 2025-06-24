@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import Image from 'next/image';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ProductDialogProps {
   mode: 'create' | 'edit' | 'view';
@@ -23,6 +25,7 @@ interface ProductDialogProps {
     stock: number;
     description: string;
     image: { id: string; url: string }[];
+    category: string;
   };
   onSubmit?: (formData: FormData) => Promise<void>;
 }
@@ -36,6 +39,7 @@ export function ProductDialog({
 }: ProductDialogProps) {
   const [selectedImage, setSelectedImage] = React.useState<string>('');
   const [previewImages, setPreviewImages] = React.useState<{ url: string; file?: File }[]>([]);
+  const [category, setCategory] = React.useState<string>(product?.category || '');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -45,6 +49,7 @@ export function ProductDialog({
     } else {
       setPreviewImages([]);
     }
+    setCategory(product?.category || '');
   }, [product]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,25 +113,29 @@ export function ProductDialog({
       .map(img => img.url);
     formData.append('existingImages', JSON.stringify(existingUrls));
 
+    // Add category from state
+    formData.append('category', category);
+
     await onSubmit?.(formData);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
+        <ScrollArea className="h-[70vh] w-full pr-2">
         <form action={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             {previewImages.length > 0 && (
               <>
-                <div className="relative w-full h-[400px]">
+                  <div className="relative w-full aspect-square max-h-[400px]">
                   <Image
                     src={selectedImage || previewImages[0].url}
                     alt="Selected product image"
                     fill
-                    className="object-contain rounded-lg"
+                      className="object-cover rounded-lg"
                   />
                 </div>
                 <div className="flex gap-2 overflow-x-auto py-2">
@@ -136,7 +145,7 @@ export function ProductDialog({
                       className="relative"
                     >
                       <div
-                        className={`relative w-20 h-20 cursor-pointer border-2 rounded-lg overflow-hidden
+                          className={`relative w-20 h-20 aspect-square cursor-pointer border-2 rounded-lg overflow-hidden
                           ${selectedImage === img.url ? 'border-blue-500' : 'border-transparent'}`}
                         onClick={() => setSelectedImage(img.url)}
                       >
@@ -193,7 +202,33 @@ export function ProductDialog({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select 
+                name="category" 
+                value={category} 
+                onValueChange={setCategory}
+                disabled={isViewMode} 
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FURNITURE">Furniture</SelectItem>
+                  <SelectItem value="LIGHTING">Lighting</SelectItem>
+                  <SelectItem value="DECORATION">Decoration</SelectItem>
+                  <SelectItem value="KITCHEN">Kitchen</SelectItem>
+                  <SelectItem value="BATHROOM">Bathroom</SelectItem>
+                  <SelectItem value="BEDROOM">Bedroom</SelectItem>
+                  <SelectItem value="LIVING_ROOM">Living Room</SelectItem>
+                  <SelectItem value="OFFICE">Office</SelectItem>
+                  <SelectItem value="OUTDOOR">Outdoor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price">Price</Label>
               <Input
@@ -244,6 +279,7 @@ export function ProductDialog({
             <input type="hidden" name="id" value={product.id} />
           )}
         </form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

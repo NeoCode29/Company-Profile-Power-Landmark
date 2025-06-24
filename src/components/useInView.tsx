@@ -10,9 +10,9 @@ type InViewOptions = {
 
 export function useInView<T extends HTMLElement = HTMLElement>(
   options: InViewOptions = {}
-): [RefObject<T>, boolean] {
+): [RefObject<T | null>, boolean] {
   const { threshold = 0.1, triggerOnce = true, rootMargin = '0px' } = options
-  const ref = useRef<T>(null)
+  const ref = useRef<T | null>(null)
   const [isInView, setIsInView] = useState(false)
 
   useEffect(() => {
