@@ -127,29 +127,18 @@ const CheckoutPage: React.FC = () => {
       if (result.success) {
         // Untuk API 2.0, jika ada checkoutId, redirect ke iPay88 payment gateway
         if (result.checkoutId && result.signature) {
-          // Buat form untuk redirect ke iPay88
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = result.paymentUrl;
-          form.style.display = 'none';
-
-          // Tambahkan CheckoutID dan Signature sebagai hidden input
-          const checkoutIdInput = document.createElement('input');
-          checkoutIdInput.type = 'hidden';
-          checkoutIdInput.name = 'CheckoutID';
-          checkoutIdInput.value = result.checkoutId;
-          form.appendChild(checkoutIdInput);
-
-          const signatureInput = document.createElement('input');
-          signatureInput.type = 'hidden';
-          signatureInput.name = 'Signature';
-          signatureInput.value = result.signature;
-          form.appendChild(signatureInput);
-
-          document.body.appendChild(form);
-          form.submit();
+          console.log('🔗 Preparing redirect to iPay88');
+          console.log('🔗 Payment URL:', result.paymentUrl);
+          console.log('🔗 CheckoutID:', result.checkoutId);
+          
+          // Simple redirect tanpa kompleksitas iframe
+          // iPay88 akan menerima referrer dari localhost:3000
+          console.log('🚀 Redirecting to iPay88 payment gateway');
+          window.location.href = result.paymentUrl;
+          
         } else {
           // Fallback untuk test mode atau redirect langsung
+          console.log('🔗 Fallback redirect:', result.paymentUrl);
           window.location.href = result.paymentUrl;
         }
       } else {

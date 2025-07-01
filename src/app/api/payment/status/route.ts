@@ -6,14 +6,15 @@ import { prisma } from '@/lib/prisma';
 const IPAY88_CONFIG = {
   MERCHANT_CODE: process.env.IPAY88_MERCHANT_CODE || 'ID00001',
   MERCHANT_KEY: process.env.IPAY88_MERCHANT_KEY || 'your-merchant-key',
-  REQUERY_URL: 'https://sandbox.ipay88.co.id/ePayment/WebService/PaymentAPI/RequeryPaymentStatus',
-  PRODUCTION_REQUERY_URL: 'https://payment.ipay88.co.id/ePayment/WebService/PaymentAPI/RequeryPaymentStatus',
+  REQUERY_URL: 'https://sandbox.ipay88.co.id/ePayment/WebService/PaymentAPI/RequeryPaymentStatusV2',
+  PRODUCTION_REQUERY_URL: 'https://payment.ipay88.co.id/ePayment/WebService/PaymentAPI/RequeryPaymentStatusV2',
   IS_SANDBOX: process.env.NODE_ENV !== 'production'
 };
 
-// Generate signature for requery
+// Generate signature for requery dengan format iPay88 yang benar
 function generateRequerySignature(merchantCode: string, refNo: string, amount: string): string {
-  const signatureString = `${IPAY88_CONFIG.MERCHANT_KEY}${merchantCode}${refNo}${amount}`;
+  // Format requery iPay88: ||MerchantKey||MerchantCode||RefNo||Amount||
+  const signatureString = `||${IPAY88_CONFIG.MERCHANT_KEY}||${merchantCode}||${refNo}||${amount}||`;
   return crypto.createHash('sha256').update(signatureString).digest('hex');
 }
 
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
     );
 
     const requeryParams = {
+      ApiVersion: '2.0',
       MerchantCode: IPAY88_CONFIG.MERCHANT_CODE,
       RefNo: orderNumber,
       Amount: order.totalAmount.toString(),
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     const ipay88Response = await response.json();
 
-    if (ipay88Response.Status === '200') {
+    if (ipay88Response.Status === '200' && ipay88Response.Message === '00') {
       const { Data } = ipay88Response;
       
       // Update order status based on requery result
@@ -108,7 +110,8 @@ export async function POST(request: NextRequest) {
     } else {
       return NextResponse.json({
         success: false,
-        error: ipay88Response.Message || 'Failed to query payment status'
+        error: ipay88Response.Message || 'Failed to query payment status',
+        details: ipay88Response
       }, { status: 400 });
     }
 

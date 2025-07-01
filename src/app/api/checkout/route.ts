@@ -3,10 +3,10 @@ import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 
-// iPay88 Configuration - Using documented sandbox credentials
+// iPay88 Configuration - Using real sandbox credentials
 const IPAY88_CONFIG = {
-  MERCHANT_CODE: process.env.IPAY88_MERCHANT_CODE || 'ID00001', // Default sandbox merchant code
-  MERCHANT_KEY: process.env.IPAY88_MERCHANT_KEY || 'your-merchant-key', // Default sandbox merchant key
+  MERCHANT_CODE: process.env.IPAY88_MERCHANT_CODE || 'ID02189', // Real sandbox merchant code
+  MERCHANT_KEY: process.env.IPAY88_MERCHANT_KEY || 'Lqb4Mpq4H7', // Real sandbox merchant key
   SANDBOX_URL: 'https://sandbox.ipay88.co.id/ePayment/WebService/PaymentAPI/Checkout',
   PRODUCTION_URL: 'https://payment.ipay88.co.id/ePayment/WebService/PaymentAPI/Checkout',
   IS_SANDBOX: process.env.NODE_ENV !== 'production'
@@ -14,7 +14,7 @@ const IPAY88_CONFIG = {
 
 // Generate SHA256 signature for iPay88
 function generateSignature(params: any): string {
-  // Berdasarkan dokumentasi iPay88 resmi, signature hanya menggunakan 5 field dengan format ||field||
+  // Format signature iPay88 yang benar dengan delimiter ||
   const {
     MerchantCode,
     RefNo,
@@ -25,14 +25,14 @@ function generateSignature(params: any): string {
   // Format: ||MerchantKey||MerchantCode||RefNo||Amount||Currency||
   const signatureString = `||${IPAY88_CONFIG.MERCHANT_KEY}||${MerchantCode}||${RefNo}||${Amount}||${Currency}||`;
   
-  console.log('🔐 Signature generation:', {
+  console.log('🔐 Signature generation (Correct Format):', {
     MerchantKey: IPAY88_CONFIG.MERCHANT_KEY ? '***SET***' : '***NOT SET***',
     MerchantCode,
     RefNo,
     Amount,
     Currency,
     signatureLength: signatureString.length,
-    format: 'Official iPay88 format with || delimiters'
+    format: 'iPay88 format with || delimiters'
   });
   
   return crypto.createHash('sha256').update(signatureString).digest('hex');
@@ -75,9 +75,9 @@ export async function POST(request: NextRequest) {
       totalAmount
     } = body;
 
-    // Use BCA VA for testing - more stable than QRIS in sandbox
-    const finalPaymentMethod = '25'; // BCA Virtual Account - most stable for sandbox testing
-    console.log('🔄 Payment method received:', paymentMethod, '-> Force using BCA VA for testing:', finalPaymentMethod);
+    // Use user-selected payment method or default to QRIS
+    const finalPaymentMethod = paymentMethod || '120'; // Default to QRIS if not specified
+    console.log('🔄 Payment method received:', paymentMethod, '-> Using:', finalPaymentMethod);
 
     console.log('Extracted data:', {
       itemsLength: items?.length,
@@ -205,27 +205,36 @@ export async function POST(request: NextRequest) {
       : `${items.length} items from Power Landmark`;
 
     // Prepare iPay88 request parameters  
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = (process.env.NEXTAUTH_URL || 'http://localhost:3000').replace(/\/$/, ''); // Remove trailing slash
+    
+    // Untuk testing, gunakan localhost
+    const testBaseUrl = 'http://localhost:3000'; // Untuk testing di localhost
+    
     const ipay88Params = {
       APIVersion: '2.0',
       MerchantCode: IPAY88_CONFIG.MERCHANT_CODE,
-      PaymentId: parseInt(finalPaymentMethod),
+      PaymentId: finalPaymentMethod, // Send as string, not integer
       Currency: 'IDR',
       RefNo: orderNumber,
       Amount: calculatedTotal.toString(),
       ProdDesc: prodDesc,
-      RequestType: 'SEAMLESS', // Add RequestType for API 2.0
+      RequestType: 'REDIRECT', // ✅ Sesuai dokumentasi iPay88 - default method
       UserName: customerInfo.name,
       UserEmail: customerInfo.email,
       UserContact: customerInfo.phone,
       Remark: `Order from Power Landmark - ${orderNumber}`,
       Lang: 'ISO-8859-1',
-      ResponseURL: `${baseUrl}/api/payment/response`,
-      BackendURL: `${baseUrl}/api/payment/callback`
+      ResponseURL: `${testBaseUrl}/payment/status?orderNumber=${orderNumber}`, // Testing dengan domain tanpa www
+      BackendURL: `${testBaseUrl}/api/payment/callback`
     };
 
-    // Generate signature
-    const signature = generateSignature(ipay88Params);
+    // Generate signature dengan format yang benar: ||MerchantKey||MerchantCode||RefNo||Amount||Currency||
+    const signature = generateSignature({
+      MerchantCode: IPAY88_CONFIG.MERCHANT_CODE,
+      RefNo: orderNumber,
+      Amount: calculatedTotal.toString(),
+      Currency: 'IDR'
+    });
     const requestPayload = {
       ...ipay88Params,
       Signature: signature
@@ -249,11 +258,20 @@ export async function POST(request: NextRequest) {
       
       // Mock successful response for testing - simulate real iPay88 flow
       const mockResponse = {
-        Status: '1',
-        Message: 'Payment initiated successfully (TEST MODE)',
+        Status: '200',
+        Message: '00',
         Data: {
+          MerchantCode: IPAY88_CONFIG.MERCHANT_CODE,
+          PaymentId: finalPaymentMethod,
+          RefNo: orderNumber,
+          Amount: calculatedTotal.toString(),
+          Currency: 'IDR',
           TransId: 'TEST_' + Date.now(),
-          PaymentURL: `${baseUrl}/payment/test-payment?orderNumber=${orderNumber}&amount=${calculatedTotal}&transId=TEST_${Date.now()}`
+          AuthCode: 'TEST_AUTH',
+          TransactionStatus: '1',
+          ErrDesc: '',
+          Signature: 'test_signature',
+          PaymentDate: new Date().toISOString()
         }
       };
 
@@ -261,7 +279,7 @@ export async function POST(request: NextRequest) {
         where: { id: order.id },
         data: {
           paymentToken: mockResponse.Data.TransId,
-          paymentUrl: mockResponse.Data.PaymentURL,
+          paymentUrl: `${baseUrl}/payment/test-payment?orderNumber=${orderNumber}&amount=${calculatedTotal}&transId=${mockResponse.Data.TransId}`,
           paymentStatus: 'PENDING'
         }
       });
@@ -270,7 +288,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         orderNumber,
-        paymentUrl: mockResponse.Data.PaymentURL,
+        paymentUrl: `${baseUrl}/payment/test-payment?orderNumber=${orderNumber}&amount=${calculatedTotal}&transId=${mockResponse.Data.TransId}`,
         transactionId: mockResponse.Data.TransId,
         message: 'Payment initiated successfully (TEST MODE)'
       });
@@ -291,30 +309,65 @@ export async function POST(request: NextRequest) {
     const ipay88Response = await response.json();
     console.log('iPay88 response:', ipay88Response);
 
-    // Check response format berdasarkan dokumentasi iPay88 API 2.0
-    // Success: Code: "1", CheckoutID exists
-    // Fail: Code: "0", Message contains error
-    if (ipay88Response.Code === '1' && ipay88Response.CheckoutID) {
-      // Untuk API 2.0, setelah mendapat CheckoutID, perlu redirect ke payment gateway
-      const paymentUrl = `https://sandbox.ipay88.co.id/PG/`;
+    // ✅ Check response format sesuai dokumentasi iPay88 API 2.0
+    // Success: Status: "200", Message: "00"
+    // Fail: Status selain "200" atau Message selain "00"
+    if (ipay88Response.Status === '200' && ipay88Response.Message === '00' && ipay88Response.Data) {
+      // ✅ Untuk RequestType 'REDIRECT', akan mendapat payment URL di response
+      // atau perlu membuat redirect URL dari parameter yang ada
+      
+      let paymentUrl: string;
+      
+      if (ipay88Response.Data.PaymentURL) {
+        // Jika response sudah ada PaymentURL langsung
+        paymentUrl = ipay88Response.Data.PaymentURL;
+      } else {
+        // Jika tidak ada PaymentURL, buat redirect URL ke iPay88 payment gateway
+        const paymentBaseUrl = IPAY88_CONFIG.IS_SANDBOX 
+          ? 'https://sandbox.ipay88.co.id/ePayment/webform'
+          : 'https://payment.ipay88.co.id/ePayment/webform';
+        
+        // Build redirect URL dengan parameter lengkap
+        const paymentParams = new URLSearchParams({
+          MerchantCode: IPAY88_CONFIG.MERCHANT_CODE,
+          PaymentId: finalPaymentMethod,
+          RefNo: orderNumber,
+          Amount: calculatedTotal.toString(),
+          Currency: 'IDR',
+          ProdDesc: prodDesc,
+          UserName: customerInfo.name,
+          UserEmail: customerInfo.email,
+          UserContact: customerInfo.phone,
+          Remark: ipay88Params.Remark,
+          Lang: 'ISO-8859-1',
+          ResponseURL: ipay88Params.ResponseURL,
+          BackendURL: ipay88Params.BackendURL,
+          Signature: signature
+        });
+        
+        paymentUrl = `${paymentBaseUrl}?${paymentParams.toString()}`;
+      }
       
       // Update order dengan payment info
       await prisma.order.update({
         where: { id: order.id },
         data: {
-          paymentToken: ipay88Response.CheckoutID,
-          paymentUrl: paymentUrl
+          paymentToken: ipay88Response.Data.TransId,
+          paymentUrl: paymentUrl,
+          paymentStatus: 'PENDING'
         }
       });
 
-      console.log('✅ iPay88 checkout ID generated successfully');
+      console.log('✅ iPay88 payment request successful');
+      console.log('🔗 Payment URL:', paymentUrl);
+      console.log('🔗 Transaction ID:', ipay88Response.Data.TransId);
+      
       return NextResponse.json({
         success: true,
         orderNumber,
-        checkoutId: ipay88Response.CheckoutID,
-        signature: ipay88Response.Signature,
+        transactionId: ipay88Response.Data.TransId,
         paymentUrl: paymentUrl,
-        message: 'Checkout initiated successfully'
+        message: 'Payment initiated successfully'
       });
     } else {
       console.log('❌ iPay88 payment failed:', ipay88Response);

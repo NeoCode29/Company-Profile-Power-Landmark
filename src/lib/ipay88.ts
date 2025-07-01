@@ -74,44 +74,33 @@ export const PAYMENT_METHOD_LABELS = {
   [PAYMENT_METHODS.KREDIVO]: 'Kredivo'
 };
 
-// Generate SHA256 signature for checkout
+// Generate SHA256 signature for checkout - Format iPay88 yang benar
 export function generateCheckoutSignature(params: {
   MerchantCode: string;
-  PaymentId: string;
   RefNo: string;
   Amount: string;
   Currency: string;
-  ProdDesc: string;
-  UserName: string;
-  UserEmail: string;
-  UserContact: string;
-  Remark: string;
-  Lang: string;
-  ResponseURL: string;
-  BackendURL: string;
 }): string {
   const {
     MerchantCode,
-    PaymentId,
     RefNo,
     Amount,
-    Currency,
-    ProdDesc,
-    UserName,
-    UserEmail,
-    UserContact,
-    Remark,
-    Lang,
-    ResponseURL,
-    BackendURL
+    Currency
   } = params;
 
-  const signatureString = `${IPAY88_CONFIG.MERCHANT_KEY}${MerchantCode}${PaymentId}${RefNo}${Amount}${Currency}${ProdDesc}${UserName}${UserEmail}${UserContact}${Remark}${Lang}${ResponseURL}${BackendURL}`;
+  // Format iPay88 yang benar: ||MerchantKey||MerchantCode||RefNo||Amount||Currency||
+  const signatureString = `||${IPAY88_CONFIG.MERCHANT_KEY}||${MerchantCode}||${RefNo}||${Amount}||${Currency}||`;
+  
+  console.log('🔐 Checkout signature generation (Correct Format):', {
+    MerchantKey: IPAY88_CONFIG.MERCHANT_KEY ? '***SET***' : '***NOT SET***',
+    signatureLength: signatureString.length,
+    format: 'iPay88 format with || delimiters'
+  });
   
   return crypto.createHash('sha256').update(signatureString).digest('hex');
 }
 
-// Generate signature for callback verification
+// Generate signature for callback verification - Format iPay88 yang benar
 export function generateCallbackSignature(params: {
   MerchantCode: string;
   PaymentId: string;
@@ -121,19 +110,21 @@ export function generateCallbackSignature(params: {
   Status: string;
 }): string {
   const { MerchantCode, PaymentId, RefNo, Amount, Currency, Status } = params;
-  const signatureString = `${IPAY88_CONFIG.MERCHANT_KEY}${MerchantCode}${PaymentId}${RefNo}${Amount}${Currency}${Status}`;
+  // Format callback iPay88: ||MerchantKey||MerchantCode||PaymentId||RefNo||Amount||Currency||Status||
+  const signatureString = `||${IPAY88_CONFIG.MERCHANT_KEY}||${MerchantCode}||${PaymentId}||${RefNo}||${Amount}||${Currency}||${Status}||`;
   
   return crypto.createHash('sha256').update(signatureString).digest('hex');
 }
 
-// Generate signature for requery
+// Generate signature for requery - Format iPay88 yang benar
 export function generateRequerySignature(params: {
   MerchantCode: string;
   RefNo: string;
   Amount: string;
 }): string {
   const { MerchantCode, RefNo, Amount } = params;
-  const signatureString = `${IPAY88_CONFIG.MERCHANT_KEY}${MerchantCode}${RefNo}${Amount}`;
+  // Format requery iPay88: ||MerchantKey||MerchantCode||RefNo||Amount||
+  const signatureString = `||${IPAY88_CONFIG.MERCHANT_KEY}||${MerchantCode}||${RefNo}||${Amount}||`;
   
   return crypto.createHash('sha256').update(signatureString).digest('hex');
 }
@@ -188,16 +179,24 @@ export function generateOrderNumber(): string {
 
 // iPay88 API Response types
 export interface IPay88CheckoutResponse {
-  Status: string;
-  Message: string;
+  Status: string; // "200" for success, other for error
+  Message: string; // "00" for success, error message for failure  
   Data?: {
     MerchantCode: string;
     PaymentId: string;
     RefNo: string;
     Amount: string;
     Currency: string;
+    Remark: string;
     TransId: string;
-    PaymentURL?: string;
+    AuthCode: string;
+    TransactionStatus: string; // "1" for success
+    ErrDesc: string;
+    Signature: string;
+    IssuerBank?: string;
+    PaymentDate: string;
+    Xfields1?: string;
+    PaymentURL?: string; // Optional - some responses may include direct payment URL
   };
   ErrDesc?: string;
 }
@@ -211,10 +210,11 @@ export interface IPay88CallbackData {
   Remark: string;
   TransId: string;
   AuthCode: string;
-  Status: string;
+  Status: string; // "1" for success, "0" for failure
   ErrDesc: string;
   Signature: string;
   PaymentDate: string;
+  xfield1?: string;
 }
 
 export interface IPay88RequeryResponse {
