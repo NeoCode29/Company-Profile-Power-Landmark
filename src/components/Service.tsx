@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { Service as ServiceType } from '@prisma/client';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
+import { toast } from 'react-hot-toast';
 import {
   Dialog,
   DialogContent,
@@ -28,103 +29,27 @@ interface ServiceData {
   note?: string;
   freeRevision?: string;
   images: string[];
+  architecturalOptions?: {
+    id: string;
+    name: string;
+    price: number;
+    size: string;
+  }[];
 }
 
-const architecturalOptions = [
-  { id: 1, name: 'Under 250m²', price: 100000000 },
-  { id: 2, name: '251-500m²', price: 250000000 },
-  { id: 3, name: '501-1000m²', price: 350000000 },
-  { id: 4, name: 'Above 1000m²', price: 500000000 },
-];
+interface ServiceProps {
+  services: ServiceData[];
+}
 
-const Service: React.FC = () => {
-  const services = [
-    {
-      id: "architecture-design",
-      title: "Architecture Design",
-      description: "We create architectural designs that blend aesthetics with functionality. Each design is uniquely tailored to reflect your personality and lifestyle with a professional touch.",
-      price: 500000,
-      priceUnit: "/m²",
-      features: [
-        "Modern exterior and interior design",
-        "Efficient layout planning",
-        "Natural lighting optimization",
-        "Eco-friendly concepts"
-      ],
-      note: "Concept floor plan sketches in 5-7 working days.",
-      freeRevision: "You will receive original and complete designs tailored to your needs, created by our experienced team of architects, civil drafters, and 3D visual artists. The designs are ready for safe construction, ensuring the finished home meets your expectations.",
-      images: [
-        '/images/architecture-design/image1.jpg',
-        '/images/architecture-design/image2.jpg'
-      ]
-    },
-    {
-      id: "private-home-construction",
-      title: "Private Home Construction",
-      description: "Building your dream home with the highest quality standards. We handle every construction detail to ensure perfect results that last for generations.",
-      price: 5000000,
-      priceUnit: "/m²",
-      features: [
-        "Premium quality materials",
-        "Experienced construction team",
-        "Professional project management",
-        "Construction quality assurance"
-      ],
-      images: [
-        '/images/private-home-construction/image1.jpg',
-        '/images/private-home-construction/image2.jpg',
-        '/images/private-home-construction/image3.jpg',
-        '/images/private-home-construction/image4.jpg',
-        '/images/private-home-construction/image5.jpg'
-      ]
-    },
-    {
-      id: "villa-development",
-      title: "Villa Development",
-      description: "Creating luxurious villas that combine elegance with comfort. Each villa is meticulously designed to provide a unique living experience in harmony with its surroundings.",
-      price: 7500000,
-      priceUnit: "/m²",
-      features: [
-        "Exclusive villa designs",
-        "Premium features and facilities",
-        "Beautiful landscaping",
-        "Smart home integration"
-      ],
-      images: [
-        '/images/private-villa-construction/image1.jpg',
-        '/images/private-villa-construction/image2.jpg',
-        '/images/private-villa-construction/image3.jpg',
-        '/images/private-villa-construction/image4.jpg'
-      ]
-    },
-    {
-      id: "renovation-services",
-      title: "Renovation Services",
-      description: "Transforming existing spaces into more modern and functional environments. We help you maximize the potential of your property with innovative design solutions.",
-      price: 2000000,
-      priceUnit: "/m²",
-      features: [
-        "Detailed renovation planning",
-        "Creative design solutions",
-        "Efficient execution",
-        "Quality renovation results"
-      ],
-      images: [
-        '/images/renovation-services/image1.jpg',
-        '/images/renovation-services/image2.jpg',
-        '/images/renovation-services/image3.jpg',
-        '/images/renovation-services/image4.jpg',
-        '/images/renovation-services/image5.jpg',
-        '/images/renovation-services/image6.jpg'
-      ]
-    }
-  ];
-
+const Service: React.FC<ServiceProps> = ({ services }) => {
   const [selectedService, setSelectedService] = useState<ServiceData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [areaInput, setAreaInput] = useState<string>('');
+  const [customPrice, setCustomPrice] = useState<number>(0);
+  const [customPriceInput, setCustomPriceInput] = useState<string>('');
+  const [useCustomPrice, setUseCustomPrice] = useState<boolean>(false);
   const { addToCart } = useCart();
 
   const handleServiceClick = (service: ServiceData) => {
@@ -145,17 +70,41 @@ const Service: React.FC = () => {
     let itemId = selectedService.id;
 
     if (selectedService.id === "architecture-design") {
-      const selectedOptionData = architecturalOptions.find(opt => opt.name === selectedOption);
-      if (selectedOptionData) {
-        finalPrice = selectedOptionData.price;
-        itemName = `${selectedService.title} - ${selectedOption}`;
-        itemId = `${selectedService.id}-${selectedOption}`;
+      if (selectedOption === 'custom-area') {
+        // Custom luas dengan harga default
+        const area = parseInt(areaInput) || 0;
+        finalPrice = customPrice * area;
+        itemName = `${selectedService.title} - Custom ${area}m²`;
+        itemId = `${selectedService.id}-custom-area-${area}`;
+      } else if (selectedOption === 'custom-both') {
+        // Custom luas dan harga
+        const area = parseInt(areaInput) || 0;
+        const pricePerM2 = parseInt(customPriceInput) || customPrice;
+        finalPrice = pricePerM2 * area;
+        itemName = `${selectedService.title} - Custom ${area}m² (${formatPrice(pricePerM2)}/m²)`;
+        itemId = `${selectedService.id}-custom-both-${area}-${pricePerM2}`;
+      } else {
+        // Pilihan 1-4 (paket tetap)
+        const selectedOptionData = selectedService.architecturalOptions?.find(opt => opt.name === selectedOption);
+        if (selectedOptionData) {
+          finalPrice = selectedOptionData.price;
+          itemName = `${selectedService.title} - ${selectedOption}`;
+          itemId = `${selectedService.id}-${selectedOption}`;
+        }
       }
     } else {
+      // Layanan lainnya
       const area = parseInt(areaInput) || 0;
-      finalPrice = selectedService.price * area;
-      itemName = `${selectedService.title} - ${area}m²`;
-      itemId = `${selectedService.id}-${area}`;
+      const pricePerM2 = useCustomPrice ? (parseInt(customPriceInput) || selectedService.price) : selectedService.price;
+      finalPrice = pricePerM2 * area;
+      
+      if (useCustomPrice) {
+        itemName = `${selectedService.title} - ${area}m² (${formatPrice(pricePerM2)}/m²)`;
+        itemId = `${selectedService.id}-custom-${area}-${pricePerM2}`;
+      } else {
+        itemName = `${selectedService.title} - ${area}m²`;
+        itemId = `${selectedService.id}-${area}`;
+      }
     }
 
     addToCart({
@@ -167,14 +116,54 @@ const Service: React.FC = () => {
       type: 'service'
     });
 
+    // Show success notification
+    toast.success('Service added to cart successfully!');
+
     setIsOrderDialogOpen(false);
     setAreaInput('');
     setSelectedOption('');
+    setCustomPriceInput('');
+    setUseCustomPrice(false);
   };
+
+  // Get custom pricing option for architectural design
+  const getCustomPriceOption = (service: ServiceData) => {
+    if (service.id === 'architecture-design' && service.architecturalOptions) {
+      return service.architecturalOptions.find(opt => 
+        opt.name === 'Architectural Design' && opt.size === 'Per m²'
+      );
+    }
+    return null;
+  };
+
+  React.useEffect(() => {
+    if (selectedService?.id === 'architecture-design') {
+      const customOption = getCustomPriceOption(selectedService);
+      if (customOption) {
+        setCustomPrice(customOption.price);
+      }
+    }
+  }, [selectedService]);
+
+  // Clear irrelevant fields when option changes
+  React.useEffect(() => {
+    if (selectedOption !== 'custom-area' && selectedOption !== 'custom-both') {
+      setAreaInput('');
+      setCustomPriceInput('');
+    } else if (selectedOption === 'custom-area') {
+      setCustomPriceInput('');
+    }
+  }, [selectedOption]);
+
+  // Clear custom price input when useCustomPrice checkbox is unchecked
+  React.useEffect(() => {
+    if (!useCustomPrice) {
+      setCustomPriceInput('');
+    }
+  }, [useCustomPrice]);
 
   return (
     <>
-      <Header />
       <main className="overflow-hidden bg-gradient-to-b from-slate-100 to-white">
         <article>
           {/* Hero Section with Decorative Elements */}
@@ -330,6 +319,8 @@ const Service: React.FC = () => {
           if (!open) {
             setAreaInput('');
             setSelectedOption('');
+            setCustomPriceInput('');
+            setUseCustomPrice(false);
           }
         }}>
           <DialogContent className="max-w-md">
@@ -340,44 +331,158 @@ const Service: React.FC = () => {
             <div className="mt-6 space-y-6">
               {selectedService.id === "architecture-design" ? (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Select Area Size</h3>
+                  <h3 className="text-lg font-semibold">Select Design Type</h3>
                   <RadioGroup value={selectedOption} onValueChange={setSelectedOption}>
-                    {architecturalOptions.map((option) => (
+                    {selectedService.architecturalOptions?.filter(opt => opt.name.includes('Architectural Design -')).map((option, index) => (
                       <div key={option.id} className="flex items-center space-x-2">
-                        <RadioGroupItem value={option.name} id={`option-${option.id}`} />
-                        <Label htmlFor={`option-${option.id}`} className="flex justify-between w-full">
-                          <span>{option.name}</span>
+                        <RadioGroupItem value={option.name} id={`option-${index}`} />
+                        <Label htmlFor={`option-${index}`} className="flex justify-between w-full">
+                          <span>{option.size}</span>
                           <span className="font-semibold text-green-600">{formatPrice(option.price)}</span>
                         </Label>
                       </div>
                     ))}
+                                         <div className="flex items-center space-x-2">
+                       <RadioGroupItem value="custom-area" id="option-custom-area" />
+                       <Label htmlFor="option-custom-area" className="flex justify-between w-full">
+                         <span>Custom Area</span>
+                         <span className="font-semibold text-green-600">{formatPrice(customPrice)}/m²</span>
+                       </Label>
+                     </div>
+                     <div className="flex items-center space-x-2">
+                       <RadioGroupItem value="custom-both" id="option-custom-both" />
+                       <Label htmlFor="option-custom-both" className="flex justify-between w-full">
+                         <span>Custom Area & Price</span>
+                         <span className="font-semibold text-green-600">{formatPrice(customPrice)}/m²</span>
+                       </Label>
+                     </div>
                   </RadioGroup>
+                  
+                  {selectedOption === 'custom-area' && (
+                                         <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                       <div className="space-y-2">
+                         <Label htmlFor="custom-area" className="text-sm font-medium">Area Size (m²)</Label>
+                         <input
+                           id="custom-area"
+                           type="number"
+                           value={areaInput}
+                           onChange={(e) => setAreaInput(e.target.value)}
+                           placeholder="Enter area size"
+                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                           min="1"
+                         />
+                       </div>
+                       
+                       {areaInput && (
+                         <div className="bg-green-50 p-3 rounded-lg">
+                           <p className="text-sm text-green-800">
+                             <strong>Total Price:</strong> {formatPrice((parseInt(areaInput) || 0) * customPrice)}
+                           </p>
+                         </div>
+                       )}
+                     </div>
+                  )}
+                                     {selectedOption === 'custom-both' && (
+                     <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                       <div className="space-y-2">
+                         <Label htmlFor="custom-area" className="text-sm font-medium">Area Size (m²)</Label>
+                         <input
+                           id="custom-area"
+                           type="number"
+                           value={areaInput}
+                           onChange={(e) => setAreaInput(e.target.value)}
+                           placeholder="Enter area size"
+                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                           min="1"
+                         />
+                       </div>
+                       
+                       <div className="space-y-2">
+                         <Label htmlFor="custom-price" className="text-sm font-medium">
+                           Price per m² (optional, default: {formatPrice(customPrice)})
+                         </Label>
+                         <input
+                           id="custom-price"
+                           type="number"
+                           value={customPriceInput}
+                           onChange={(e) => setCustomPriceInput(e.target.value)}
+                           placeholder={`Default: ${customPrice}`}
+                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                           min="1000"
+                         />
+                       </div>
+                       
+                       {areaInput && (
+                         <div className="bg-green-50 p-3 rounded-lg">
+                           <p className="text-sm text-green-800">
+                             <strong>Total Price:</strong> {formatPrice((parseInt(customPriceInput) || customPrice) * parseInt(areaInput) || 0)}
+                           </p>
+                           <p className="text-xs text-green-600 mt-1">
+                             {areaInput}m² × {formatPrice(parseInt(customPriceInput) || customPrice)}/m²
+                           </p>
+                         </div>
+                       )}
+                     </div>
+                   )}
                 </div>
               ) : (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Service Details</h3>
                   <div className="space-y-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-600">Price: {formatPrice(selectedService.price)} {selectedService.priceUnit}</p>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-gray-600">Default Price: {formatPrice(selectedService.price)} {selectedService.priceUnit}</p>
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="area" className="text-sm font-medium">Luas Area (m²)</Label>
+                      <Label htmlFor="area" className="text-sm font-medium">Area Size (m²)</Label>
                       <input
                         id="area"
                         type="number"
                         value={areaInput}
                         onChange={(e) => setAreaInput(e.target.value)}
-                        placeholder="Masukkan luas area"
+                        placeholder="Enter area size"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                         min="1"
                       />
                     </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="use-custom-price"
+                        checked={useCustomPrice}
+                        onChange={(e) => setUseCustomPrice(e.target.checked)}
+                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                      />
+                      <Label htmlFor="use-custom-price" className="text-sm font-medium">
+                        Use custom price
+                      </Label>
+                    </div>
+
+                    {useCustomPrice && (
+                      <div className="space-y-2">
+                        <Label htmlFor="custom-service-price" className="text-sm font-medium">
+                          Price per m² (default: {formatPrice(selectedService.price)})
+                        </Label>
+                        <input
+                          id="custom-service-price"
+                          type="number"
+                          value={customPriceInput}
+                          onChange={(e) => setCustomPriceInput(e.target.value)}
+                          placeholder={`Default: ${selectedService.price}`}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          min="1000"
+                        />
+                      </div>
+                    )}
                     
                     {areaInput && (
                       <div className="bg-green-50 p-4 rounded-lg">
                         <p className="text-sm text-green-800">
-                          <strong>Total Harga:</strong> {formatPrice(selectedService.price * parseInt(areaInput) || 0)}
+                          <strong>Total Price:</strong> {formatPrice((useCustomPrice ? (parseInt(customPriceInput) || selectedService.price) : selectedService.price) * parseInt(areaInput) || 0)}
+                        </p>
+                        <p className="text-xs text-green-600 mt-1">
+                          {areaInput}m² × {formatPrice(useCustomPrice ? (parseInt(customPriceInput) || selectedService.price) : selectedService.price)}/m²
                         </p>
                       </div>
                     )}
@@ -396,7 +501,10 @@ const Service: React.FC = () => {
                   onClick={handleAddToCart}
                   disabled={
                     (selectedService.id === "architecture-design" && !selectedOption) ||
-                    (selectedService.id !== "architecture-design" && !areaInput)
+                    (selectedService.id === "architecture-design" && (selectedOption === 'custom-area' || selectedOption === 'custom-both') && !areaInput) ||
+                    (selectedService.id === "architecture-design" && selectedOption === 'custom-both' && !customPriceInput) ||
+                    (selectedService.id !== "architecture-design" && !areaInput) ||
+                    (selectedService.id !== "architecture-design" && useCustomPrice && !customPriceInput)
                   }
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

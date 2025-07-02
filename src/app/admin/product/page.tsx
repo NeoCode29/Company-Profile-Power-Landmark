@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { ProductClient } from './ProductClient';
-import { uploadToGoogleDrive, deleteFromGoogleDrive } from '@/lib/googleDrive';
+import { saveImageToPublic } from '@/services/imageUpload';
+import fs from 'fs';
+import path from 'path';
 
 // Force dynamic rendering to ensure fresh data from database
 export const dynamic = 'force-dynamic';
@@ -17,6 +19,23 @@ async function getProducts() {
   });
 }
 
+// Delete image from local storage
+async function deleteImageSecure(imagePath: string): Promise<void> {
+  try {
+    // Sanitize path to prevent directory traversal
+    const sanitizedPath = imagePath.replace(/^\//, '').replace(/\.\.\//g, '');
+    const fullPath = path.join(process.cwd(), 'public', sanitizedPath);
+
+    // Check if file exists
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  } catch (error) {
+    console.error('Failed to delete image:', imagePath, error);
+    // Don't throw error for delete failures to prevent blocking other operations
+  }
+}
+
 async function createProduct(formData: FormData): Promise<void> {
   'use server';
   
@@ -25,8 +44,9 @@ async function createProduct(formData: FormData): Promise<void> {
   const stock = parseInt(formData.get('stock') as string);
   const description = formData.get('description') as string;
   const category = formData.get('category') as string;
-  const imageFiles = formData.getAll('images');
+  const imageFiles = formData.getAll('images') as File[];
 
+  // Validation
   if (!name || !price || !stock || !description || !category) {
     throw new Error('All fields are required');
   }
@@ -35,15 +55,29 @@ async function createProduct(formData: FormData): Promise<void> {
     throw new Error('Maximum 5 images allowed');
   }
 
+  // Validate image files
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+
+  for (const file of imageFiles) {
+    if (!(file instanceof File)) {
+      throw new Error('Invalid file type');
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only JPEG, PNG, and WebP images are allowed');
+    }
+    
+    if (file.size > maxSize) {
+      throw new Error('Image size must be less than 5MB');
+    }
+  }
+
   try {
-    // Upload images to Google Drive
+    // Upload images to local storage
     const imageUrls = await Promise.all(
-      imageFiles.map(async (file, index) => {
-        if (!(file instanceof File)) {
-          throw new Error('Invalid file type');
-        }
-        const filename = `product-${Date.now()}-${index}-${file.name}`;
-        return uploadToGoogleDrive(file, filename);
+      imageFiles.map(async (file) => {
+        return await saveImageToPublic(file, 'products');
       })
     );
 
@@ -78,15 +112,34 @@ async function updateProduct(formData: FormData): Promise<void> {
   const stock = parseInt(formData.get('stock') as string);
   const description = formData.get('description') as string;
   const category = formData.get('category') as string;
-  const imageFiles = formData.getAll('images');
+  const imageFiles = formData.getAll('images') as File[];
   const existingImages = JSON.parse(formData.get('existingImages') as string) as string[];
 
+  // Validation
   if (!id || !name || !price || !stock || !description || !category) {
     throw new Error('All fields are required');
   }
 
   if (imageFiles.length + existingImages.length > 5) {
     throw new Error('Maximum 5 images allowed');
+  }
+
+  // Validate new image files
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+
+  for (const file of imageFiles) {
+    if (!(file instanceof File)) {
+      throw new Error('Invalid file type');
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only JPEG, PNG, and WebP images are allowed');
+    }
+    
+    if (file.size > maxSize) {
+      throw new Error('Image size must be less than 5MB');
+    }
   }
 
   try {
@@ -100,29 +153,22 @@ async function updateProduct(formData: FormData): Promise<void> {
       throw new Error('Product not found');
     }
 
-    // Delete removed images from Google Drive
+    // Find images to delete
     const imagesToDelete = currentProduct.image
       .filter(img => !existingImages.includes(img.url))
       .map(img => img.url);
 
-    await Promise.all(
-      imagesToDelete.map(url => deleteFromGoogleDrive(url))
-    );
-
-    // Upload new images to Google Drive
+    // Upload new images to local storage
     const newImageUrls = await Promise.all(
-      imageFiles.map(async (file, index) => {
-        if (!(file instanceof File)) {
-          throw new Error('Invalid file type');
-        }
-        const filename = `product-${Date.now()}-${index}-${file.name}`;
-        return uploadToGoogleDrive(file, filename);
+      imageFiles.map(async (file) => {
+        return await saveImageToPublic(file, 'products');
       })
     );
 
     // Combine existing and new image URLs
     const allImageUrls = [...existingImages, ...newImageUrls];
 
+    // Update product in database
     await prisma.product.update({
       where: { id },
       data: {
@@ -137,6 +183,11 @@ async function updateProduct(formData: FormData): Promise<void> {
         }
       }
     });
+
+    // Delete removed images from local storage (after successful DB update)
+    await Promise.all(
+      imagesToDelete.map(url => deleteImageSecure(url))
+    );
 
     // Revalidate both admin and public product pages
     revalidatePath('/admin/product');
@@ -165,11 +216,6 @@ async function deleteProduct(productId: string): Promise<void> {
       throw new Error('Product not found');
     }
 
-    // Delete images from Google Drive
-    await Promise.all(
-      product.image.map(img => deleteFromGoogleDrive(img.url))
-    );
-
     // First delete all related images from the database
     await prisma.imageProduct.deleteMany({
       where: {
@@ -181,6 +227,11 @@ async function deleteProduct(productId: string): Promise<void> {
     await prisma.product.delete({
       where: { id: productId }
     });
+
+    // Delete images from local storage (after successful DB operations)
+    await Promise.all(
+      product.image.map(img => deleteImageSecure(img.url))
+    );
 
     // Revalidate both admin and public product pages
     revalidatePath('/admin/product');
@@ -200,11 +251,17 @@ export default async function ProductPage() {
   const products = await getProducts();
 
   return (
-    <ProductClient
-      products={products}
-      onCreateProduct={createProduct}
-      onUpdateProduct={updateProduct}
-      onDeleteProduct={deleteProduct}
-    />
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Manage Products</h1>
+      </div>
+      
+      <ProductClient 
+        products={products} 
+        onCreateProduct={createProduct}
+        onUpdateProduct={updateProduct}
+        onDeleteProduct={deleteProduct}
+      />
+    </div>
   );
 } 

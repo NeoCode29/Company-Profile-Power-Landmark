@@ -33,6 +33,11 @@ async function main() {
       size: 'Under 250m²',
     },
     {
+      name: 'Architectural Design',
+      price: 150000,
+      size: 'Per m²',
+    },
+    {
       name: 'Home Renovation',
       price: 2000000,
       size: 'Per m²',
