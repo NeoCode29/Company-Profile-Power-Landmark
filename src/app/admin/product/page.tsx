@@ -6,6 +6,9 @@ import { revalidatePath } from 'next/cache';
 import { ProductClient } from './ProductClient';
 import { uploadToGoogleDrive, deleteFromGoogleDrive } from '@/lib/googleDrive';
 
+// Force dynamic rendering to ensure fresh data from database
+export const dynamic = 'force-dynamic';
+
 async function getProducts() {
   return await prisma.product.findMany({
     include: {
@@ -57,7 +60,9 @@ async function createProduct(formData: FormData): Promise<void> {
       }
     });
 
+    // Revalidate both admin and public product pages
     revalidatePath('/admin/product');
+    revalidatePath('/products');
   } catch (error) {
     console.error('Error creating product:', error);
     throw error;
@@ -133,7 +138,9 @@ async function updateProduct(formData: FormData): Promise<void> {
       }
     });
 
+    // Revalidate both admin and public product pages
     revalidatePath('/admin/product');
+    revalidatePath('/products');
   } catch (error) {
     console.error('Error updating product:', error);
     throw error;
@@ -175,7 +182,9 @@ async function deleteProduct(productId: string): Promise<void> {
       where: { id: productId }
     });
 
+    // Revalidate both admin and public product pages
     revalidatePath('/admin/product');
+    revalidatePath('/products');
   } catch (error) {
     console.error('Error deleting product:', error);
     throw error;

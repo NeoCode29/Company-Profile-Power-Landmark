@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create redirect URL to payment status page  
-    const baseUrl = 'http://localhost:3000'; // Force localhost untuk testing
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const redirectUrl = new URL('/payment/status', baseUrl);
     redirectUrl.searchParams.set('orderNumber', RefNo);
     redirectUrl.searchParams.set('status', Status === '1' ? 'success' : 'failed');
@@ -206,8 +206,8 @@ export async function GET(request: NextRequest) {
     finalStatus = 'failed';
   }
   
-      // Create redirect URL to payment status page (untuk testing di localhost)
-    const baseUrl = 'http://localhost:3000'; // Force localhost untuk testing
+    // Create redirect URL to payment status page
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const redirectUrl = new URL('/payment/status', baseUrl);
   redirectUrl.searchParams.set('orderNumber', refNo || '');
   redirectUrl.searchParams.set('status', finalStatus);

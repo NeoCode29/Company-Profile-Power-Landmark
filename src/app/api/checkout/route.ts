@@ -207,8 +207,7 @@ export async function POST(request: NextRequest) {
     // Prepare iPay88 request parameters  
     const baseUrl = (process.env.NEXTAUTH_URL || 'http://localhost:3000').replace(/\/$/, ''); // Remove trailing slash
     
-    // Untuk testing, gunakan localhost
-    const testBaseUrl = 'http://localhost:3000'; // Untuk testing di localhost
+    console.log('🔗 Using base URL for callbacks:', baseUrl);
     
     const ipay88Params = {
       APIVersion: '2.0',
@@ -224,8 +223,8 @@ export async function POST(request: NextRequest) {
       UserContact: customerInfo.phone,
       Remark: `Order from Power Landmark - ${orderNumber}`,
       Lang: 'ISO-8859-1',
-      ResponseURL: `${testBaseUrl}/payment/status?orderNumber=${orderNumber}`, // Testing dengan domain tanpa www
-      BackendURL: `${testBaseUrl}/api/payment/callback`
+      ResponseURL: `${baseUrl}/payment/status?orderNumber=${orderNumber}`,
+      BackendURL: `${baseUrl}/api/payment/callback`
     };
 
     // Generate signature dengan format yang benar: ||MerchantKey||MerchantCode||RefNo||Amount||Currency||

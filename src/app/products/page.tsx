@@ -3,6 +3,10 @@ import Header from '@/components/Header';
 import { prisma } from '@/lib/prisma';
 import { ProductList } from './ProductList';
 
+// Force dynamic rendering to ensure fresh data from database
+export const dynamic = 'force-dynamic';
+// Alternative: export const revalidate = 0; // revalidate on every request
+
 async function getProducts() {
   const products = await prisma.product.findMany({
     include: {
