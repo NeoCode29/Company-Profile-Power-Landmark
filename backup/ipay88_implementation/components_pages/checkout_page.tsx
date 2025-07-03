@@ -1,26 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
-// Extend Window interface untuk Midtrans SNAP
-declare global {
-  interface Window {
-    snap: {
-      pay: (token: string, options: {
-        onSuccess?: (result: any) => void;
-        onPending?: (result: any) => void;
-        onError?: (result: any) => void;
-        onClose?: () => void;
-      }) => void;
-    };
-  }
-}
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Header from '@/components/Header';
 import { formatPrice } from '@/lib/utils';
-import { MIDTRANS_PAYMENT_METHODS, MIDTRANS_PAYMENT_LABELS, getSnapUrl } from '@/libs/midtrans';
+import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from '@/lib/ipay88';
 import {
   Card,
   CardContent,
@@ -55,7 +41,7 @@ const CheckoutPage: React.FC = () => {
     address: ''
   });
   
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('all_payments');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(PAYMENT_METHODS.QRIS);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<CustomerInfo>>({});
 
@@ -123,8 +109,6 @@ const CheckoutPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      console.log('🔄 Processing checkout with Midtrans SNAP...');
-      
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -133,112 +117,81 @@ const CheckoutPage: React.FC = () => {
         body: JSON.stringify({
           items: selectedCartItems,
           customerInfo: customerInfo,
+          paymentMethod: selectedPaymentMethod,
           totalAmount: selectedTotalPrice,
         }),
       });
 
       const result = await response.json();
 
-      if (result.success && result.token) {
-        console.log('✅ Checkout successful, initializing Midtrans SNAP');
-        
-        // Load Midtrans SNAP script jika belum ada
-        if (!window.snap) {
-          const script = document.createElement('script');
-          script.src = getSnapUrl();
-          script.setAttribute('data-client-key', 'SB-Mid-client-your-client-key');
-          document.body.appendChild(script);
+      if (result.success) {
+        // Untuk API 2.0, jika ada checkoutId, redirect ke iPay88 payment gateway
+        if (result.checkoutId && result.signature) {
+          console.log('🔗 Preparing redirect to iPay88');
+          console.log('🔗 Payment URL:', result.paymentUrl);
+          console.log('🔗 CheckoutID:', result.checkoutId);
           
-          script.onload = () => {
-            console.log('📜 Midtrans SNAP script loaded');
-            openSnapPayment(result.token, result.orderId);
-          };
+          // Simple redirect tanpa kompleksitas iframe
+          // iPay88 akan menerima referrer dari localhost:3000
+          console.log('🚀 Redirecting to iPay88 payment gateway');
+          window.location.href = result.paymentUrl;
+          
         } else {
-          openSnapPayment(result.token, result.orderId);
+          // Fallback untuk test mode atau redirect langsung
+          console.log('🔗 Fallback redirect:', result.paymentUrl);
+          window.location.href = result.paymentUrl;
         }
-        
       } else {
-        throw new Error(result.error || 'Gagal membuat token pembayaran');
+        throw new Error(result.error || 'Checkout failed');
       }
     } catch (error) {
-      console.error('❌ Checkout error:', error);
-      alert(`Terjadi kesalahan: ${error instanceof Error ? error.message : 'Silakan coba lagi'}`);
+      console.error('Checkout error:', error);
+      alert('Terjadi kesalahan saat memproses checkout. Silakan coba lagi.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const openSnapPayment = (token: string, orderId: string) => {
-    console.log('🚀 Opening Midtrans SNAP payment popup');
-    
-    window.snap.pay(token, {
-      onSuccess: function(result: any) {
-        console.log('✅ Payment successful:', result);
-        alert('Pembayaran berhasil!');
-        
-        // Clear selected items dari cart
-        removeSelectedItems();
-        
-        // Redirect ke halaman success
-        router.push(`/payment/finish?order_id=${orderId}&status=success`);
-      },
-      onPending: function(result: any) {
-        console.log('⏳ Payment pending:', result);
-        alert('Pembayaran menunggu konfirmasi. Silakan selesaikan pembayaran Anda.');
-        
-        // Redirect ke halaman pending
-        router.push(`/payment/finish?order_id=${orderId}&status=pending`);
-      },
-      onError: function(result: any) {
-        console.error('❌ Payment error:', result);
-        alert('Pembayaran gagal. Silakan coba lagi.');
-      },
-      onClose: function() {
-        console.log('🚪 Payment popup closed');
-        alert('Anda menutup halaman pembayaran sebelum menyelesaikan transaksi.');
-      }
-    });
-  };
-
-  // Payment method categories untuk Midtrans
+  // Payment method categories
   const paymentCategories = [
     {
       title: 'E-Wallet',
       icon: <Smartphone className="w-5 h-5" />,
       methods: [
-        { id: MIDTRANS_PAYMENT_METHODS.QRIS, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.QRIS] },
-        { id: MIDTRANS_PAYMENT_METHODS.GOPAY, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.GOPAY] },
-        { id: MIDTRANS_PAYMENT_METHODS.DANA, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.DANA] },
-        { id: MIDTRANS_PAYMENT_METHODS.LINKAJA, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.LINKAJA] },
-        { id: MIDTRANS_PAYMENT_METHODS.SHOPEEPAY, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.SHOPEEPAY] },
+        { id: PAYMENT_METHODS.QRIS, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.QRIS] },
+        { id: PAYMENT_METHODS.OVO, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.OVO] },
+        { id: PAYMENT_METHODS.DANA, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.DANA] },
+        { id: PAYMENT_METHODS.LINKAJA, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.LINKAJA] },
+        { id: PAYMENT_METHODS.SHOPEEPAY, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.SHOPEEPAY] },
       ]
     },
     {
       title: 'Virtual Account',
       icon: <Building className="w-5 h-5" />,
       methods: [
-        { id: MIDTRANS_PAYMENT_METHODS.BCA_VA, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.BCA_VA] },
-        { id: MIDTRANS_PAYMENT_METHODS.BRI_VA, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.BRI_VA] },
-        { id: MIDTRANS_PAYMENT_METHODS.BNI_VA, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.BNI_VA] },
-        { id: MIDTRANS_PAYMENT_METHODS.MANDIRI_VA, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.MANDIRI_VA] },
-        { id: MIDTRANS_PAYMENT_METHODS.PERMATA_VA, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.PERMATA_VA] },
+        { id: PAYMENT_METHODS.BCA_VA, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.BCA_VA] },
+        { id: PAYMENT_METHODS.BRI_VA, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.BRI_VA] },
+        { id: PAYMENT_METHODS.BNI_VA, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.BNI_VA] },
+        { id: PAYMENT_METHODS.MANDIRI_VA, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.MANDIRI_VA] },
+        { id: PAYMENT_METHODS.PERMATA_VA, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.PERMATA_VA] },
       ]
     },
     {
-      title: 'Credit/Debit Card',
+      title: 'Credit Card',
       icon: <CreditCard className="w-5 h-5" />,
       methods: [
-        { id: MIDTRANS_PAYMENT_METHODS.CREDIT_CARD, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.CREDIT_CARD] },
+        { id: PAYMENT_METHODS.BCA_CREDIT, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.BCA_CREDIT] },
+        { id: PAYMENT_METHODS.BRI_CREDIT, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.BRI_CREDIT] },
+        { id: PAYMENT_METHODS.CIMB_CREDIT, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.CIMB_CREDIT] },
+        { id: PAYMENT_METHODS.UNIONPAY, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.UNIONPAY] },
       ]
     },
     {
       title: 'Over The Counter',
       icon: <Store className="w-5 h-5" />,
       methods: [
-        { id: MIDTRANS_PAYMENT_METHODS.ALFAMART, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.ALFAMART] },
-        { id: MIDTRANS_PAYMENT_METHODS.INDOMARET, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.INDOMARET] },
-        { id: MIDTRANS_PAYMENT_METHODS.AKULAKU, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.AKULAKU] },
-        { id: MIDTRANS_PAYMENT_METHODS.KREDIVO, label: MIDTRANS_PAYMENT_LABELS[MIDTRANS_PAYMENT_METHODS.KREDIVO] },
+        { id: PAYMENT_METHODS.ALFAMART, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.ALFAMART] },
+        { id: PAYMENT_METHODS.INDOMARET, label: PAYMENT_METHOD_LABELS[PAYMENT_METHODS.INDOMARET] },
       ]
     }
   ];
@@ -324,131 +277,27 @@ const CheckoutPage: React.FC = () => {
                     <CardTitle>Metode Pembayaran</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="font-semibold text-blue-900">Pembayaran Melalui Midtrans</span>
+                    <RadioGroup value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
+                      {paymentCategories.map((category) => (
+                        <div key={category.title} className="space-y-3">
+                          <div className="flex items-center gap-2 font-medium text-gray-700">
+                            {category.icon}
+                            <span>{category.title}</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-7">
+                            {category.methods.map((method) => (
+                              <div key={method.id} className="flex items-center space-x-2">
+                                <RadioGroupItem value={method.id} id={method.id} />
+                                <Label htmlFor={method.id} className="cursor-pointer">
+                                  {method.label}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                          <Separator className="mt-4" />
                         </div>
-                        <p className="text-sm text-blue-800 mb-3">
-                          Kami menggunakan Midtrans untuk proses pembayaran yang aman dan terpercaya. 
-                          Setelah klik "Bayar Sekarang", Anda akan diarahkan ke halaman pembayaran Midtrans 
-                          dengan berbagai pilihan metode pembayaran.
-                        </p>
-                        
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          {/* E-Wallets */}
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/gopay.png" 
-                                alt="GoPay" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">GoPay</span>
-                          </div>
-                          
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/dana.png" 
-                                alt="DANA" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">DANA</span>
-                          </div>
-                          
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/shopee-pay.png" 
-                                alt="ShopeePay" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">ShopeePay</span>
-                          </div>
-                          
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/qris.png" 
-                                alt="QRIS" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">QRIS</span>
-                          </div>
-                          
-                          {/* Banks */}
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/bca.png" 
-                                alt="BCA" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">BCA</span>
-                          </div>
-                          
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/mandiri.png" 
-                                alt="Mandiri" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">Mandiri</span>
-                          </div>
-                          
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/bni.png" 
-                                alt="BNI" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">BNI</span>
-                          </div>
-                          
-                          <div className="text-center">
-                            <div className="bg-white p-2 rounded border">
-                              <Image 
-                                src="/images/payment-gateway/visa.png" 
-                                alt="Visa" 
-                                width={40} 
-                                height={24}
-                                className="mx-auto"
-                              />
-                            </div>
-                            <span className="text-xs text-gray-600 mt-1 block">Visa/MC</span>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-3 text-xs text-blue-700">
-                          Dan metode pembayaran lainnya tersedia di halaman checkout Midtrans
-                        </div>
-                      </div>
-                    </div>
+                      ))}
+                    </RadioGroup>
                   </CardContent>
                 </Card>
               </div>

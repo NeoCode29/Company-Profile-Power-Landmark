@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import EnhancedServiceCard from './EnhancedServiceCard';
 import Header from './Header';
 import { AnimateInView } from './AnimateInView';
-import { prisma } from '@/lib/prisma';
-import { Service as ServiceType } from '@prisma/client';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'react-hot-toast';
