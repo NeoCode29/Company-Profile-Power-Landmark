@@ -168,30 +168,72 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  // Helper function to save payment history
+  const savePaymentHistory = (status: string, result: any, orderIdParam: string) => {
+    const paymentHistory = {
+      orderId: orderIdParam,
+      transactionId: result?.transaction_id || `temp-${Date.now()}`,
+      amount: selectedTotalPrice,
+      status: status,
+      paymentType: result?.payment_type || 'unknown',
+      customerName: customerInfo.name,
+      customerEmail: customerInfo.email,
+      items: selectedCartItems.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price
+      })),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Import PaymentHistoryManager dynamically to avoid SSR issues
+    import('@/lib/paymentHistory').then(({ PaymentHistoryManager }) => {
+      PaymentHistoryManager.savePayment(paymentHistory);
+    }).catch(error => {
+      console.error('Error saving payment history:', error);
+    });
+  };
+
   const openSnapPayment = (token: string, orderId: string) => {
     console.log('🚀 Opening Midtrans SNAP payment popup');
     
     window.snap.pay(token, {
       onSuccess: function(result: any) {
         console.log('✅ Payment successful:', result);
+        
+        // Save to payment history
+        savePaymentHistory('capture', result, orderId);
+        
         alert('Pembayaran berhasil!');
         
         // Clear selected items dari cart
         removeSelectedItems();
         
         // Redirect ke halaman success
-        router.push(`/payment/finish?order_id=${orderId}&status=success`);
+        router.push(`/payment/finish?order_id=${orderId}&transaction_status=capture&transaction_id=${result.transaction_id}&payment_type=${result.payment_type}&gross_amount=${selectedTotalPrice}&transaction_time=${new Date().toISOString()}&status_message=Success`);
       },
       onPending: function(result: any) {
         console.log('⏳ Payment pending:', result);
+        
+        // Save to payment history
+        savePaymentHistory('pending', result, orderId);
+        
         alert('Pembayaran menunggu konfirmasi. Silakan selesaikan pembayaran Anda.');
         
         // Redirect ke halaman pending
-        router.push(`/payment/finish?order_id=${orderId}&status=pending`);
+        router.push(`/payment/finish?order_id=${orderId}&transaction_status=pending&transaction_id=${result.transaction_id}&payment_type=${result.payment_type}&gross_amount=${selectedTotalPrice}&transaction_time=${new Date().toISOString()}&status_message=Pending`);
       },
       onError: function(result: any) {
         console.error('❌ Payment error:', result);
+        
+        // Save to payment history
+        savePaymentHistory('failure', result, orderId);
+        
         alert('Pembayaran gagal. Silakan coba lagi.');
+        
+        // Redirect ke halaman error
+        router.push(`/payment/finish?order_id=${orderId}&transaction_status=failure&transaction_id=${result?.transaction_id || 'unknown'}&payment_type=${result?.payment_type || 'unknown'}&gross_amount=${selectedTotalPrice}&transaction_time=${new Date().toISOString()}&status_message=Payment Failed`);
       },
       onClose: function() {
         console.log('🚪 Payment popup closed');

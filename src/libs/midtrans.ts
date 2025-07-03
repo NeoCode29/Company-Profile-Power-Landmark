@@ -159,7 +159,7 @@ export function getAuthorizationHeader(): string {
 
 // Generate unique order ID
 export function generateOrderId(): string {
-  const timestamp = Date.now();
+  const timestamp = Math.floor(Date.now() / 1000); // Convert to seconds (10 digits)
   const random = Math.random().toString(36).substr(2, 6).toUpperCase();
   return `PL-${timestamp}-${random}`;
 }

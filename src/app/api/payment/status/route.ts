@@ -1,144 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 
-// iPay88 Configuration
-const IPAY88_CONFIG = {
-  MERCHANT_CODE: process.env.IPAY88_MERCHANT_CODE || 'ID00001',
-  MERCHANT_KEY: process.env.IPAY88_MERCHANT_KEY || 'your-merchant-key',
-  REQUERY_URL: 'https://sandbox.ipay88.co.id/ePayment/WebService/PaymentAPI/RequeryPaymentStatusV2',
-  PRODUCTION_REQUERY_URL: 'https://payment.ipay88.co.id/ePayment/WebService/PaymentAPI/RequeryPaymentStatusV2',
-  IS_SANDBOX: process.env.NODE_ENV !== 'production'
-};
-
-// Generate signature for requery dengan format iPay88 yang benar
-function generateRequerySignature(merchantCode: string, refNo: string, amount: string): string {
-  // Format requery iPay88: ||MerchantKey||MerchantCode||RefNo||Amount||
-  const signatureString = `||${IPAY88_CONFIG.MERCHANT_KEY}||${merchantCode}||${refNo}||${amount}||`;
-  return crypto.createHash('sha256').update(signatureString).digest('hex');
+// Helper function to create user-friendly status message
+function createUserFriendlyStatusMessage(paymentStatus: string): string {
+  switch (paymentStatus) {
+    case 'PAID':
+      return 'Pembayaran berhasil dikonfirmasi';
+    case 'PENDING':
+      return 'Pembayaran sedang dalam proses';
+    case 'FAILED':
+      return 'Pembayaran gagal atau ditolak';
+    case 'EXPIRED':
+      return 'Pembayaran telah kadaluarsa';
+    case 'REFUNDED':
+      return 'Pembayaran telah direfund';
+    default:
+      return 'Status pembayaran tidak diketahui';
+  }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const { orderNumber } = await request.json();
-
-    if (!orderNumber) {
-      return NextResponse.json(
-        { error: 'Order number is required' },
-        { status: 400 }
-      );
-    }
-
-    // Find order in database
-    const order = await prisma.order.findUnique({
-      where: { orderNumber }
-    });
-
-    if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      );
-    }
-
-    // Prepare requery parameters
-    const signature = generateRequerySignature(
-      IPAY88_CONFIG.MERCHANT_CODE,
-      orderNumber,
-      order.totalAmount.toString()
-    );
-
-    const requeryParams = {
-      ApiVersion: '2.0',
-      MerchantCode: IPAY88_CONFIG.MERCHANT_CODE,
-      RefNo: orderNumber,
-      Amount: order.totalAmount.toString(),
-      Signature: signature
-    };
-
-    // Make requery request to iPay88
-    const requeryUrl = IPAY88_CONFIG.IS_SANDBOX 
-      ? IPAY88_CONFIG.REQUERY_URL 
-      : IPAY88_CONFIG.PRODUCTION_REQUERY_URL;
-
-    const response = await fetch(requeryUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requeryParams)
-    });
-
-    const ipay88Response = await response.json();
-
-    if (ipay88Response.Status === '200' && ipay88Response.Message === '00') {
-      const { Data } = ipay88Response;
-      
-      // Update order status based on requery result
-      let orderStatus: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' = 'PENDING';
-      let paymentStatus: 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED' | 'REFUNDED' = 'PENDING';
-
-      if (Data.TransactionStatus === '1') {
-        orderStatus = 'CONFIRMED';
-        paymentStatus = 'PAID';
-      } else if (Data.TransactionStatus === '0') {
-        orderStatus = 'CANCELLED';
-        paymentStatus = 'FAILED';
-      }
-
-      // Update order in database
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          status: orderStatus,
-          paymentStatus,
-          paymentToken: Data.TransId || order.paymentToken,
-          updatedAt: new Date()
-        }
-      });
-
-      return NextResponse.json({
-        success: true,
-        orderNumber,
-        status: orderStatus,
-        paymentStatus,
-        transactionId: Data.TransId,
-        amount: Data.Amount,
-        paymentDate: Data.PaymentDate,
-        message: Data.ErrDesc || 'Payment status updated'
-      });
-    } else {
-      return NextResponse.json({
-        success: false,
-        error: ipay88Response.Message || 'Failed to query payment status',
-        details: ipay88Response
-      }, { status: 400 });
-    }
-
-  } catch (error) {
-    console.error('Payment status query error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+// Helper function to map database payment status to Midtrans format
+function mapPaymentStatusToMidtrans(paymentStatus: string): string {
+  switch (paymentStatus) {
+    case 'PAID':
+      return 'settlement';
+    case 'PENDING':
+      return 'pending';
+    case 'FAILED':
+      return 'failure';
+    case 'EXPIRED':
+      return 'expire';
+    case 'REFUNDED':
+      return 'refund';
+    default:
+      return 'pending';
   }
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const orderNumber = searchParams.get('orderNumber');
+  const orderId = searchParams.get('order_id');
 
-  if (!orderNumber) {
+  if (!orderId) {
     return NextResponse.json(
-      { error: 'Order number is required' },
+      { 
+        success: false,
+        error: 'Order ID is required' 
+      },
       { status: 400 }
     );
   }
 
   try {
-    // Get order from database
+    console.log(`🔍 Checking payment status for order: ${orderId} (Database Only)`);
+    
+    // Get order from database only - no Midtrans API call
     const order = await prisma.order.findUnique({
-      where: { orderNumber },
+      where: { orderNumber: orderId },
       include: {
         items: {
           include: {
@@ -150,71 +68,70 @@ export async function GET(request: NextRequest) {
     });
 
     if (!order) {
+      console.error(`❌ Order not found in database: ${orderId}`);
       return NextResponse.json(
-        { error: 'Order not found' },
+        { 
+          success: false,
+          error: 'Order tidak ditemukan' 
+        },
         { status: 404 }
       );
     }
 
-    // Check if we have status from URL parameters (from iPay88 callback)
-    const urlStatus = searchParams.get('status');
-    const source = searchParams.get('source');
-    
-    let finalStatus = order.status;
-    let finalPaymentStatus = order.paymentStatus;
+    console.log(`✅ Order found in database:`, {
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      totalAmount: order.totalAmount,
+      createdAt: order.createdAt
+    });
 
-    // If this comes from iPay88 callback with status parameter, use that
-    if (source === 'ipay88' && urlStatus) {
-      if (urlStatus === 'success') {
-        finalStatus = 'CONFIRMED';
-        finalPaymentStatus = 'PAID';
-        
-        // Update order in database
-        await prisma.order.update({
-          where: { id: order.id },
-          data: {
-            status: 'CONFIRMED',
-            paymentStatus: 'PAID',
-            updatedAt: new Date()
-          }
-        });
-      } else if (urlStatus === 'failed') {
-        finalStatus = 'CANCELLED';
-        finalPaymentStatus = 'FAILED';
-        
-        // Update order in database
-        await prisma.order.update({
-          where: { id: order.id },
-          data: {
-            status: 'CANCELLED',
-            paymentStatus: 'FAILED',
-            updatedAt: new Date()
-          }
-        });
-      }
-    }
+    // Create payment response from database data
+    const paymentResponse = {
+      order_id: order.orderNumber,
+      transaction_id: order.paymentToken || order.orderNumber,
+      transaction_status: mapPaymentStatusToMidtrans(order.paymentStatus),
+      payment_type: 'database_record',
+      gross_amount: order.totalAmount.toString(),
+      transaction_time: order.createdAt.toISOString(),
+      fraud_status: 'accept',
+      status_message: createUserFriendlyStatusMessage(order.paymentStatus),
+      currency: 'IDR',
+      merchant_id: process.env.MIDTRANS_MERCHANT_ID || '',
+      note: 'Status diambil dari database lokal'
+    };
+
+    console.log(`📊 Payment response created:`, {
+      order_id: paymentResponse.order_id,
+      transaction_status: paymentResponse.transaction_status,
+      status_message: paymentResponse.status_message
+    });
 
     return NextResponse.json({
       success: true,
-      status: urlStatus === 'success' ? 'success' : urlStatus === 'failed' ? 'failed' : 'pending',
+      payment: paymentResponse,
       order: {
+        id: order.id,
         orderNumber: order.orderNumber,
-        status: finalStatus,
-        paymentStatus: finalPaymentStatus,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
         totalAmount: order.totalAmount,
-        customerName: order.customerName,
-        customerEmail: order.customerEmail,
-        customerPhone: order.customerPhone,
-        items: order.items,
         createdAt: order.createdAt,
-        updatedAt: order.updatedAt
-      }
+        updatedAt: order.updatedAt,
+        items: order.items
+      },
+      isOfflineStatus: true,
+      dataSource: 'database',
+      lastUpdated: order.updatedAt.toISOString()
     });
 
   } catch (error) {
-    console.error('Get order error:', error);
+    console.error('❌ Payment status query error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        success: false,
+        error: 'Terjadi kesalahan saat mengambil data pembayaran' 
+      },
       { status: 500 }
     );
   }
